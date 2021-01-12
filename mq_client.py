@@ -246,7 +246,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.text_payload.setText(self.ui.text_payload_rx.toPlainText())
 
     def publish_clicked(self):
-        topic = self.ui.text_topic.toPlainText()
+        topic = self.ui.text_topic.text()
         payload = self.ui.text_payload.toPlainText()
         qos = self.ui.num_qos.value()
         retain = self.ui.checkbox_retain.isChecked()

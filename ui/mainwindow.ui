@@ -20,7 +20,23 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QTreeView" name="tree_view"/>
+      <widget class="QWidget" name="">
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <widget class="QLineEdit" name="text_tree_search"/>
+        </item>
+        <item>
+         <widget class="QTreeView" name="tree_view">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>1</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
@@ -123,10 +139,7 @@
             <property name="formAlignment">
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
-            <item row="0" column="1">
-             <widget class="QTextEdit" name="text_topic"/>
-            </item>
-            <item row="1" column="0">
+            <item row="2" column="0">
              <widget class="QLabel" name="label_payload">
               <property name="text">
                <string>Payload</string>
@@ -136,10 +149,10 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="1">
+            <item row="2" column="1">
              <widget class="QTextEdit" name="text_payload"/>
             </item>
-            <item row="2" column="0">
+            <item row="3" column="0">
              <widget class="QLabel" name="label_qos">
               <property name="text">
                <string>QoS</string>
@@ -149,7 +162,7 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="1">
+            <item row="3" column="1">
              <widget class="QSpinBox" name="num_qos">
               <property name="frame">
                <bool>true</bool>
@@ -159,31 +172,28 @@
               </property>
              </widget>
             </item>
-            <item row="6" column="0" colspan="2">
+            <item row="7" column="0" colspan="2">
              <widget class="QPushButton" name="button_publish">
               <property name="text">
                <string>Publish</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="0">
+            <item row="1" column="0">
              <widget class="QLabel" name="label_topic">
               <property name="text">
                <string>Topic</string>
               </property>
-              <property name="buddy">
-               <cstring>text_topic</cstring>
-              </property>
              </widget>
             </item>
-            <item row="4" column="0">
+            <item row="5" column="0">
              <widget class="QLabel" name="label_retain">
               <property name="text">
                <string>Retain</string>
               </property>
              </widget>
             </item>
-            <item row="4" column="1">
+            <item row="5" column="1">
              <widget class="QCheckBox" name="checkbox_retain">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -195,6 +205,9 @@
                <string/>
               </property>
              </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="text_topic"/>
             </item>
            </layout>
           </widget>
