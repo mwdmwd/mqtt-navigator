@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>830</width>
+    <height>585</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="central_widget">
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <item>
+     <widget class="QSplitter" name="splitter_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QTreeView" name="tree_view"/>
+      <widget class="QWidget" name="layoutWidget">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <layout class="QFormLayout" name="formLayout_2">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_topic_rx">
+              <property name="text">
+               <string>Topic:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QTextBrowser" name="text_topic_rx">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>1</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QPushButton" name="button_send_to_editor">
+            <property name="text">
+             <string>Send to Editor</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QSplitter" name="splitter">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <widget class="QTabWidget" name="rx_layout">
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <widget class="QWidget" name="page_text">
+            <attribute name="title">
+             <string>Tt</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_2">
+             <item>
+              <widget class="QTextBrowser" name="text_payload_rx"/>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="page_history">
+            <attribute name="title">
+             <string>History</string>
+            </attribute>
+           </widget>
+           <widget class="QWidget" name="page_json">
+            <attribute name="title">
+             <string>{}</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <item>
+              <widget class="QTreeView" name="tree_json_rx">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="page_chart">
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
+            <attribute name="title">
+             <string>Chart</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="chart_layout"/>
+           </widget>
+          </widget>
+          <widget class="QWidget" name="tx_widget" native="true">
+           <layout class="QFormLayout" name="formLayout">
+            <property name="fieldGrowthPolicy">
+             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+            </property>
+            <property name="rowWrapPolicy">
+             <enum>QFormLayout::DontWrapRows</enum>
+            </property>
+            <property name="labelAlignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="formAlignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+            <item row="0" column="1">
+             <widget class="QTextEdit" name="text_topic"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_payload">
+              <property name="text">
+               <string>Payload</string>
+              </property>
+              <property name="buddy">
+               <cstring>text_payload</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QTextEdit" name="text_payload"/>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_qos">
+              <property name="text">
+               <string>QoS</string>
+              </property>
+              <property name="buddy">
+               <cstring>num_qos</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QSpinBox" name="num_qos">
+              <property name="frame">
+               <bool>true</bool>
+              </property>
+              <property name="maximum">
+               <number>2</number>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0" colspan="2">
+             <widget class="QPushButton" name="button_publish">
+              <property name="text">
+               <string>Publish</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_topic">
+              <property name="text">
+               <string>Topic</string>
+              </property>
+              <property name="buddy">
+               <cstring>text_topic</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_retain">
+              <property name="text">
+               <string>Retain</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QCheckBox" name="checkbox_retain">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
