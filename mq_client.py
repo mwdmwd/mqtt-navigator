@@ -224,7 +224,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.button_send_to_editor.clicked.connect(self.send_to_editor_clicked)
         self.ui.button_publish.clicked.connect(self.publish_clicked)
 
-    def tree_selection_changed(self, selected: QtCore.QItemSelectionModel, deselected):
+    def tree_selection_changed(self, selected: QtCore.QItemSelectionModel, _deselected):
         model: MqTreeNode = selected.indexes()[0].internalPointer()
 
         self.ui.text_topic_rx.setText(model.fullTopic())
