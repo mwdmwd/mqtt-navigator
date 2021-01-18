@@ -67,8 +67,8 @@ class MqTreeNode:
 
 
 class MqTreeModel(QtCore.QAbstractItemModel):
-    def __init__(self, mqtt_client: mqtt.Client):
-        super().__init__()
+    def __init__(self, mqtt_client: mqtt.Client, parent=None):
+        super().__init__(parent)
 
         self._mqtt = mqtt_client
         self._mqtt.on_connect = self.on_connect
@@ -213,7 +213,12 @@ class MqTreeModel(QtCore.QAbstractItemModel):
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, model: MqTreeModel):
         super().__init__()
-        self.model = model
+        self.raw_model = model
+
+        self.model = QtCore.QSortFilterProxyModel(self)
+        self.model.setSourceModel(self.raw_model)
+        self.model = self.raw_model  # FIXME TODO
+
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setupUi()
@@ -223,6 +228,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.tree_view.selectionModel().selectionChanged.connect(self.tree_selection_changed)
         self.ui.button_send_to_editor.clicked.connect(self.send_to_editor_clicked)
         self.ui.button_publish.clicked.connect(self.publish_clicked)
+        self.ui.text_tree_search.textChanged.connect(self.search_text_changed)
 
     def tree_selection_changed(self, selected: QtCore.QItemSelectionModel, _deselected):
         model: MqTreeNode = selected.indexes()[0].internalPointer()
@@ -241,6 +247,10 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.tree_json_rx.setModel(None)
             self.ui.tree_json_rx.setDisabled(True)
 
+    def search_text_changed(self):
+        text = self.ui.text_tree_search.text()
+        self.model.setFilterFixedString(text)
+
     def send_to_editor_clicked(self):
         self.ui.text_topic.setText(self.ui.text_topic_rx.toPlainText())
         self.ui.text_payload.setText(self.ui.text_payload_rx.toPlainText())
@@ -251,15 +261,17 @@ class MainWindow(QtWidgets.QMainWindow):
         qos = self.ui.num_qos.value()
         retain = self.ui.checkbox_retain.isChecked()
 
-        self.model.mqtt_publish(topic, payload, qos, retain)
+        self.raw_model.mqtt_publish(topic, payload, qos, retain)
+
+
+app = QtWidgets.QApplication(sys.argv)
 
 mqttc = mqtt.Client()
-model = MqTreeModel(mqttc)
+model = MqTreeModel(mqttc, app)
 ModelTester(None).check(model)
 
 model.mqtt_connect("192.168.1.10")
 
-app = QtWidgets.QApplication(sys.argv)
 window = MainWindow(model)
 
 window.show()
