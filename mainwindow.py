@@ -14,8 +14,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.raw_model = model
 
         self.model = QtCore.QSortFilterProxyModel(self)
+        self.model.setFilterKeyColumn(-1)  # All columns
+        self.model.setFilterCaseSensitivity(QtCore.Qt.CaseSensitivity.CaseInsensitive)
+        self.model.setRecursiveFilteringEnabled(True)
         self.model.setSourceModel(self.raw_model)
-        self.model = self.raw_model  # FIXME TODO
+        self.model = self.raw_model  # TODO FIXME
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -38,15 +41,8 @@ class MainWindow(QtWidgets.QMainWindow):
             json_data = json.loads(model.payload)
             json_model = QJsonModel()
             json_model.load(json_data)
-            global fpm
-            fpm = QtCore.QSortFilterProxyModel(self)
-            fpm.setFilterKeyColumn(-1)  # All columns
-            fpm.setFilterCaseSensitivity(QtCore.Qt.CaseSensitivity.CaseInsensitive)
-            fpm.setRecursiveFilteringEnabled(True)
-            fpm.setSourceModel(json_model)
-            self.ui.tree_json_rx.setModel(fpm)
+            self.ui.tree_json_rx.setModel(json_model)
             self.ui.tree_json_rx.setDisabled(False)
-            ModelTester(None).check(json_model, force_py=True)
         except json.JSONDecodeError:
             self.ui.tree_json_rx.setModel(None)
             self.ui.tree_json_rx.setDisabled(True)
@@ -59,7 +55,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def search_text_changed(self):
         text = self.ui.text_tree_search.text()
-        fpm.setFilterFixedString(text)
         self.model.setFilterFixedString(text)
 
     def send_to_editor_clicked(self):
