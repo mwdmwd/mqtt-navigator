@@ -4,7 +4,9 @@ import sys
 import json
 import uuid
 from typing import Union, List, Optional, Tuple
+import collections
 from dataclasses import dataclass, field
+from datetime import datetime
 
 import paho.mqtt.client as mqtt
 from PySide2 import QtWidgets, QtCore
@@ -18,10 +20,14 @@ import consts
 from pytestqt.modeltest import ModelTester
 
 
+MqHistoricalPayload = collections.namedtuple("MqHistoricalPayload", ["payload", "timestamp"])
+
+
 @dataclass
 class MqTreeNode:
     topic_fragment: str
     payload: str
+    payload_history: List[MqHistoricalPayload] = field(default_factory=list)
 
     _parent: Optional["MqTreeNode"] = field(default=None, repr=False)
     _childItems: List["MqTreeNode"] = field(default_factory=list)
@@ -195,7 +201,11 @@ class MqTreeModel(QtCore.QAbstractItemModel):
                 self.endInsertRows()
                 # parentIndex = self.index(idx, 0, parentIndex)
 
-        node.payload = self.decode_payload(msg.payload)
+        payload = self.decode_payload(msg.payload)
+        if node.payload != payload:  # Don't add to history if the payload hasn't changed
+            node.payload_history.append(MqHistoricalPayload(payload, datetime.now()))
+            node.payload = payload
+
         if not remain:
             index = self.indexForModel(node).siblingAtColumn(1)
             print(index.row(), index.column())
@@ -209,6 +219,7 @@ class MqTreeModel(QtCore.QAbstractItemModel):
             return payload.decode("UTF-8")
         except UnicodeDecodeError:
             return repr(payload)
+
 
 # page_chart = window.ui.page_chart
 

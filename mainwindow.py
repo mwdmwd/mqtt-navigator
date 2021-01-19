@@ -6,6 +6,7 @@ from pytestqt.modeltest import ModelTester
 from mq_client import MqTreeNode, MqTreeModel
 from ui.mainwindow import Ui_MainWindow
 
+
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, model: MqTreeModel):
         super().__init__()
@@ -48,6 +49,12 @@ class MainWindow(QtWidgets.QMainWindow):
         except json.JSONDecodeError:
             self.ui.tree_json_rx.setModel(None)
             self.ui.tree_json_rx.setDisabled(True)
+
+        self.ui.table_history.setColumnCount(2)
+        self.ui.table_history.setRowCount(len(model.payload_history))
+        for i, (payload, timestamp) in enumerate(model.payload_history):
+            self.ui.table_history.setItem(i, 0, QtWidgets.QTableWidgetItem(str(timestamp)))
+            self.ui.table_history.setItem(i, 1, QtWidgets.QTableWidgetItem(payload))
 
     def search_text_changed(self):
         text = self.ui.text_tree_search.text()

@@ -20,7 +20,7 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
          <widget class="QLineEdit" name="text_tree_search"/>
@@ -84,7 +84,7 @@
           </property>
           <widget class="QTabWidget" name="rx_layout">
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="page_text">
             <attribute name="title">
@@ -100,6 +100,11 @@
             <attribute name="title">
              <string>History</string>
             </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_4">
+             <item>
+              <widget class="QTableWidget" name="table_history"/>
+             </item>
+            </layout>
            </widget>
            <widget class="QWidget" name="page_json">
             <attribute name="title">
