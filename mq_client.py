@@ -103,6 +103,9 @@ class MqTreeModel(QtCore.QAbstractItemModel):
             return ""
 
     def index(self, row, column, parent=QtCore.QModelIndex()):
+        if not self.hasIndex(row, column, parent):
+            return QtCore.QModelIndex()
+
         if not parent.isValid():
             parentItem = self._rootItem
         else:
@@ -116,7 +119,7 @@ class MqTreeModel(QtCore.QAbstractItemModel):
 
     def indexForModel(self, model: MqTreeNode) -> Optional[QtCore.QModelIndex]:
         if not model.parent():
-            return self.createIndex(0, 0, self._rootItem)
+            return QtCore.QModelIndex()
 
         hits = self.match(
             self.index(0, 0),
