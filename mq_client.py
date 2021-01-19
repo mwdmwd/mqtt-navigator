@@ -42,6 +42,7 @@ class MqTreeNode:
             return self._childItems[row]
 
     def appendChild(self, child: "MqTreeNode"):
+        child._parent = self
         self._childItems.append(child)
         return child
 
@@ -190,7 +191,7 @@ class MqTreeModel(QtCore.QAbstractItemModel):
                 idx = node.childCount()
                 parentIndex = self.indexForModel(node)
                 self.beginInsertRows(parentIndex, idx, idx + 1)
-                node = node.appendChild(MqTreeNode(frag, "", node))
+                node = node.appendChild(MqTreeNode(frag, ""))
                 self.endInsertRows()
                 # parentIndex = self.index(idx, 0, parentIndex)
 
