@@ -1,23 +1,15 @@
-import time
-import threading
-import sys
-import json
-import uuid
-from typing import Union, List, Optional, Tuple
+from __future__ import annotations
+from typing import List, Optional
 import collections
+import dataclasses
 from dataclasses import dataclass, field
 from datetime import datetime
 
 import paho.mqtt.client as mqtt
-from PySide2 import QtWidgets, QtCore
+from PySide2 import QtCore
 from PySide2.QtCore import Qt
-from PySide2.QtCharts import QtCharts
 
-from qjsonmodel import QJsonModel
-from ui.mainwindow import Ui_MainWindow
 import consts
-
-from pytestqt.modeltest import ModelTester
 
 
 MqHistoricalPayload = collections.namedtuple("MqHistoricalPayload", ["payload", "timestamp"])
@@ -29,8 +21,8 @@ class MqTreeNode:
     payload: str
     payload_history: List[MqHistoricalPayload] = field(default_factory=list)
 
-    _parent: Optional["MqTreeNode"] = field(default=None, repr=False)
-    _childItems: List["MqTreeNode"] = field(default_factory=list)
+    _parent: Optional[MqTreeNode] = field(default=None, repr=False)
+    _childItems: List[MqTreeNode] = field(default_factory=list)
 
     def fullTopic(self):
         node = self
@@ -43,11 +35,11 @@ class MqTreeNode:
     def childCount(self) -> int:
         return len(self._childItems)
 
-    def child(self, row: int) -> Optional["MqTreeNode"]:
+    def child(self, row: int) -> Optional[MqTreeNode]:
         if row >= 0 and row < self.childCount():
             return self._childItems[row]
 
-    def appendChild(self, child: "MqTreeNode"):
+    def appendChild(self, child: MqTreeNode):
         child._parent = self
         self._childItems.append(child)
         return child
@@ -73,20 +65,87 @@ class MqTreeNode:
         return None
 
 
+@dataclass
+class MqttListenerConfiguration:
+    host: str
+    port: int = 1883
+
+    username: Optional[str] = None
+    password: Optional[str] = None
+
+
 class MqttListener:
-    def __init__(self, mqtt_client: mqtt.Client):
-        self._mqtt = mqtt_client
+    def __init__(
+        self, host, port=1883, username: Optional[str] = None, password: Optional[str] = None
+    ):
+        self._mqtt = mqtt.Client()
+        self._host = host
+        self._port = port
+
+        self._connect_listeners = []
+        self._disconnect_listeners = []
+        self._message_listeners = []
+
+        if username:
+            self._mqtt.username_pw_set(username, password)
+
+    @staticmethod
+    def from_config(config: MqttListenerConfiguration) -> MqttListener:
+        return MqttListener(**dataclasses.asdict(config))
+
+    def connect(self):
+        self._mqtt.on_connect = self._connect_listener
+        self._mqtt.on_message = self._message_listener
+        self._mqtt.on_disconnect = self._disconnect_listener
+
+        self._mqtt.connect_async(self._host, self._port)
+        self._mqtt.loop_start()
+        print("conn")
+
+    def disconnect(self):
+        self._mqtt.disconnect()
+        self._mqtt.loop_stop()
+
+    def add_connect_listener(self, connect_listener):
+        self._connect_listeners.append(connect_listener)
+
+    def add_disconnect_listener(self, disconnect_listener):
+        self._disconnect_listeners.append(disconnect_listener)
+
+    def add_message_listener(self, message_listener):
+        self._message_listeners.append(message_listener)
+
+    def _connect_listener(self, client: mqtt.Client, *args):
+        client.subscribe("#")  # Subscribe to all topics
+        for listener in self._connect_listeners:  # Notify all other listeners
+            listener(client, *args)
+
+    def _disconnect_listener(self, *args):
+        for listener in self._disconnect_listeners:  # Notify all other listeners
+            listener(*args)
+
+    def _message_listener(self, *args):
+        for listener in self._message_listeners:  # Notify all other listeners
+            listener(*args)
+
 
 class MqTreeModel(QtCore.QAbstractItemModel):
-    def __init__(self, mqtt_client: mqtt.Client, parent=None):
+    def __init__(
+        self,
+        parent=None,
+        *,
+        mqtt_listener: Optional[MqttListener] = None,
+        saved_state: Optional[dict] = None
+    ):
         super().__init__(parent)
 
-        self._mqtt = mqtt_client
-        self._mqtt.on_connect = self.on_connect
-        self._mqtt.on_message = self.on_message
         self._entries = {}
-
         self._rootItem = MqTreeNode("", "")
+
+        self._mqtt = mqtt_listener
+        if self._mqtt:
+            self._mqtt.add_connect_listener(self.on_connect)
+            self._mqtt.add_message_listener(self.on_message)
 
     def columnCount(self, _parent=QtCore.QModelIndex()):
         return 2
@@ -164,21 +223,12 @@ class MqTreeModel(QtCore.QAbstractItemModel):
 
         return self.createIndex(parentItem.row(), 0, parentItem)
 
-    def mqtt_connect(self, host, port=1883, properties=None):
-        self._mqtt.connect_async(host, port=port, properties=properties)
-        self._mqtt.loop_start()
-
-    def mqtt_disconnect(self):
-        self._mqtt.loop_stop()
-        self._mqtt.disconnect()
-
     def mqtt_publish(self, topic, payload=None, qos=0, retain=False, properties=None):
         return self._mqtt.publish(
             topic, payload=payload, qos=qos, retain=retain, properties=properties
         )
 
-    @staticmethod
-    def on_connect(client, userdata, flags, rc):
+    def on_connect(self, client, _userdata, _flags, _rc):
         client.subscribe("#")
 
     def find_node(self, topic_path: List[str]) -> (MqTreeNode, List[str]):

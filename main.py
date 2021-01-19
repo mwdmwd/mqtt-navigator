@@ -2,21 +2,18 @@
 import sys
 
 from PySide2 import QtWidgets
-import paho.mqtt.client as mqtt
-from pytestqt.modeltest import ModelTester
 
-from mq_client import MqTreeModel
+from mq_client import MqTreeModel, MqttListener
 from mainwindow import MainWindow
 
 
 def main(argv):
     app = QtWidgets.QApplication(argv)
 
-    mqttc = mqtt.Client()
-    model = MqTreeModel(mqttc, app)
-    ModelTester(None).check(model)
+    mqtt_listener = MqttListener("192.168.1.10")
+    model = MqTreeModel(app, mqtt_listener=mqtt_listener)
 
-    model.mqtt_connect("192.168.1.10")
+    mqtt_listener.connect()
 
     window = MainWindow(model)
 
