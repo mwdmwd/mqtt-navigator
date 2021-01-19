@@ -106,6 +106,9 @@ class MqttListener:
         self._mqtt.disconnect()
         self._mqtt.loop_stop()
 
+    def publish(self, topic, payload=None, qos=0, retain=False, properties=None):
+        self._mqtt.publish(topic, payload, qos, retain, properties)
+
     def add_connect_listener(self, connect_listener):
         self._connect_listeners.append(connect_listener)
 
