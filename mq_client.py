@@ -130,6 +130,9 @@ class MqttListener:
 
 
 class MqTreeModel(QtCore.QAbstractItemModel):
+    # Emitted whenever a message is received on a node through an active MQTT listener
+    messageReceived = QtCore.Signal(MqTreeNode)
+
     def __init__(
         self,
         parent=None,
@@ -269,6 +272,8 @@ class MqTreeModel(QtCore.QAbstractItemModel):
             self.dataChanged.emit(index, index)
         else:
             self.layoutChanged.emit()  # TODO more specific
+
+        self.messageReceived.emit(node)  # Emit the signal with the updated node
 
     @staticmethod
     def decode_payload(payload: bytes):
