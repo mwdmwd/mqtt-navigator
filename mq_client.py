@@ -239,15 +239,15 @@ class MqTreeModel(QtCore.QAbstractItemModel):
 
     def find_node(self, topic_path: List[str]) -> (MqTreeNode, List[str]):
         node = self._rootItem
-        next = self._rootItem
-        while next and topic_path:
-            next = next.findChild(topic_path[0])
-            if next:
+        nextNode = self._rootItem
+        while nextNode and topic_path:
+            nextNode = nextNode.findChild(topic_path[0])
+            if nextNode:
                 topic_path = topic_path[1:]
-                node = next
+                node = nextNode
         return (node, topic_path)
 
-    def on_message(self, client, userdata, msg):
+    def on_message(self, _client, _userdata, msg):
         print(msg.topic)
         path = msg.topic.split("/")
         node, remain = self.find_node(path)
