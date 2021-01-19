@@ -22,9 +22,9 @@ class MqTreeNode:
     payload_history: List[MqHistoricalPayload] = field(default_factory=list)
 
     _parent: Optional[MqTreeNode] = field(default=None, repr=False)
-    _childItems: List[MqTreeNode] = field(default_factory=list)
+    _children: List[MqTreeNode] = field(default_factory=list)
 
-    def fullTopic(self):
+    def full_topic(self):
         node = self
         frags = []
         while node:
@@ -32,16 +32,17 @@ class MqTreeNode:
             node = node.parent()
         return "/".join(frags[:-1][::-1])  # Skip root
 
-    def childCount(self) -> int:
-        return len(self._childItems)
+    def child_count(self) -> int:
+        return len(self._children)
 
     def child(self, row: int) -> Optional[MqTreeNode]:
-        if row >= 0 and row < self.childCount():
-            return self._childItems[row]
+        if row >= 0 and row < self.child_count():
+            return self._children[row]
+        return None
 
-    def appendChild(self, child: MqTreeNode):
+    def append_child(self, child: MqTreeNode):
         child._parent = self
-        self._childItems.append(child)
+        self._children.append(child)
         return child
 
     def data(self, column: int):
@@ -55,11 +56,12 @@ class MqTreeNode:
 
     def row(self) -> int:
         if self._parent:
-            return self._parent._childItems.index(self)
+            return self._parent._children.index(self)
+        # The root is always row 0
         return 0
 
-    def findChild(self, topic_frag: str):
-        for child in self._childItems:
+    def find_child(self, topic_frag: str):
+        for child in self._children:
             if child.topic_fragment == topic_frag:
                 return child
         return None
@@ -146,7 +148,7 @@ class MqTreeModel(QtCore.QAbstractItemModel):
         super().__init__(parent)
 
         self._entries = {}
-        self._rootItem = MqTreeNode("", "")
+        self._root_item = MqTreeNode("", "")
 
         self._mqtt = mqtt_listener
         if self._mqtt:
@@ -161,8 +163,8 @@ class MqTreeModel(QtCore.QAbstractItemModel):
             return 0
 
         if not parent.isValid():
-            return self._rootItem.childCount()
-        return parent.internalPointer().childCount()
+            return self._root_item.child_count()
+        return parent.internalPointer().child_count()
 
     def headerData(self, _section, orientation, role):
         if role != QtCore.Qt.DisplayRole:
@@ -172,28 +174,30 @@ class MqTreeModel(QtCore.QAbstractItemModel):
             return ""
 
     def index(self, row, column, parent=QtCore.QModelIndex()):
+        # If these coordinates are out of bounds for this parent, return an invalid index
         if not self.hasIndex(row, column, parent):
             return QtCore.QModelIndex()
 
         if not parent.isValid():
-            parentItem = self._rootItem
+            parent_item = self._root_item
         else:
-            parentItem = parent.internalPointer()
+            parent_item = parent.internalPointer()
 
-        childItem = parentItem.child(row)
-        if childItem:
-            return self.createIndex(row, column, childItem)
-        else:
-            return QtCore.QModelIndex()
+        child_item = parent_item.child(row)
+        if child_item:
+            return self.createIndex(row, column, child_item)
 
-    def indexForModel(self, model: MqTreeNode) -> Optional[QtCore.QModelIndex]:
+        # Return an invalid index (represents the root)
+        return QtCore.QModelIndex()
+
+    def index_for_model(self, model: MqTreeNode) -> Optional[QtCore.QModelIndex]:
         if not model.parent():
             return QtCore.QModelIndex()
 
         hits = self.match(
             self.index(0, 0),
             consts.FULL_TOPIC_ROLE,
-            model.fullTopic(),
+            model.full_topic(),
             hits=1,
             flags=Qt.MatchRecursive | Qt.MatchExactly | Qt.MatchFixedString,
         )
@@ -215,7 +219,7 @@ class MqTreeModel(QtCore.QAbstractItemModel):
             if index.column() == 1:
                 return item.payload
         elif role == consts.FULL_TOPIC_ROLE:
-            return item.fullTopic()
+            return item.full_topic()
 
     def parent(self, index):
         if not index.isValid():
@@ -224,7 +228,7 @@ class MqTreeModel(QtCore.QAbstractItemModel):
         childItem: MqTreeNode = index.internalPointer()
         parentItem = childItem.parent()
 
-        if parentItem == self._rootItem:
+        if parentItem == self._root_item:
             return QtCore.QModelIndex()
 
         return self.createIndex(parentItem.row(), 0, parentItem)
@@ -238,10 +242,10 @@ class MqTreeModel(QtCore.QAbstractItemModel):
         client.subscribe("#")
 
     def find_node(self, topic_path: List[str]) -> (MqTreeNode, List[str]):
-        node = self._rootItem
-        nextNode = self._rootItem
+        node = self._root_item
+        nextNode = self._root_item
         while nextNode and topic_path:
-            nextNode = nextNode.findChild(topic_path[0])
+            nextNode = nextNode.find_child(topic_path[0])
             if nextNode:
                 topic_path = topic_path[1:]
                 node = nextNode
@@ -254,16 +258,16 @@ class MqTreeModel(QtCore.QAbstractItemModel):
 
         if remain:
             # Find index for deepest existing node in this subtree
-            parentIndex = self.indexForModel(node)
+            parent_index = self.index_for_model(node)
             # This could be more specific for slightly better performance
             self.layoutAboutToBeChanged.emit()
 
             for frag in remain:
-                idx = node.childCount()
-                self.beginInsertRows(parentIndex, idx, idx)
-                node = node.appendChild(MqTreeNode(frag, ""))
+                idx = node.child_count()
+                self.beginInsertRows(parent_index, idx, idx)
+                node = node.append_child(MqTreeNode(frag, ""))
                 self.endInsertRows()
-                parentIndex = self.index(idx, 0, parentIndex)
+                parent_index = self.index(idx, 0, parent_index)
 
         payload = self.decode_payload(msg.payload)
         if node.payload != payload:  # Don't add to history if the payload hasn't changed
@@ -271,7 +275,7 @@ class MqTreeModel(QtCore.QAbstractItemModel):
             node.payload = payload
 
         if not remain:
-            index = self.indexForModel(node).siblingAtColumn(1)
+            index = self.index_for_model(node).siblingAtColumn(1)
             print(index.row(), index.column())
             self.dataChanged.emit(index, index)
         else:

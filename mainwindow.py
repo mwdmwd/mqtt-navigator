@@ -94,7 +94,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _selected_node_updated(self, *, selection_changed=False):
         model = self._selected_topic_model
 
-        self.ui.text_topic_rx.setText(model.fullTopic())
+        self.ui.text_topic_rx.setText(model.full_topic())
         self.ui.text_payload_rx.setText(model.payload)
 
         self._try_parse_and_display_json(model.payload)
