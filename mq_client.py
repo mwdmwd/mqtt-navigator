@@ -73,6 +73,10 @@ class MqTreeNode:
         return None
 
 
+class MqttListener:
+    def __init__(self, mqtt_client: mqtt.Client):
+        self._mqtt = mqtt_client
+
 class MqTreeModel(QtCore.QAbstractItemModel):
     def __init__(self, mqtt_client: mqtt.Client, parent=None):
         super().__init__(parent)

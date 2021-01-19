@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>MQTT Navigator</string>
   </property>
   <widget class="QWidget" name="central_widget">
    <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -84,15 +84,29 @@
           </property>
           <widget class="QTabWidget" name="rx_layout">
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="page_text">
             <attribute name="title">
-             <string>Tt</string>
+             <string>Text</string>
             </attribute>
             <layout class="QVBoxLayout" name="verticalLayout_2">
              <item>
               <widget class="QTextBrowser" name="text_payload_rx"/>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="page_json">
+            <attribute name="title">
+             <string>JSON</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <item>
+              <widget class="QTreeView" name="tree_json_rx">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>
@@ -103,20 +117,6 @@
             <layout class="QVBoxLayout" name="verticalLayout_4">
              <item>
               <widget class="QTableWidget" name="table_history"/>
-             </item>
-            </layout>
-           </widget>
-           <widget class="QWidget" name="page_json">
-            <attribute name="title">
-             <string>{}</string>
-            </attribute>
-            <layout class="QVBoxLayout" name="verticalLayout_3">
-             <item>
-              <widget class="QTreeView" name="tree_json_rx">
-               <property name="enabled">
-                <bool>true</bool>
-               </property>
-              </widget>
              </item>
             </layout>
            </widget>
