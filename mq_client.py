@@ -253,16 +253,17 @@ class MqTreeModel(QtCore.QAbstractItemModel):
         node, remain = self.find_node(path)
 
         if remain:
+            # Find index for deepest existing node in this subtree
             parentIndex = self.indexForModel(node)
-            self.layoutAboutToBeChanged.emit()  # TODO more specific
+            # This could be more specific for slightly better performance
+            self.layoutAboutToBeChanged.emit()
 
             for frag in remain:
                 idx = node.childCount()
-                parentIndex = self.indexForModel(node)
-                self.beginInsertRows(parentIndex, idx, idx + 1)
+                self.beginInsertRows(parentIndex, idx, idx)
                 node = node.appendChild(MqTreeNode(frag, ""))
                 self.endInsertRows()
-                # parentIndex = self.index(idx, 0, parentIndex)
+                parentIndex = self.index(idx, 0, parentIndex)
 
         payload = self.decode_payload(msg.payload)
         if node.payload != payload:  # Don't add to history if the payload hasn't changed
@@ -274,7 +275,7 @@ class MqTreeModel(QtCore.QAbstractItemModel):
             print(index.row(), index.column())
             self.dataChanged.emit(index, index)
         else:
-            self.layoutChanged.emit()  # TODO more specific
+            self.layoutChanged.emit()  # Again, could be more specific
 
         self.messageReceived.emit(node)  # Emit the signal with the updated node
 
