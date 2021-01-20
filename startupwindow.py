@@ -38,12 +38,14 @@ class StartupWindow(QtWidgets.QMainWindow):
 
         self._mainwindow_model = MqTreeModel(self, mqtt_listener=mqtt_listener)
         mqtt_listener.connect()
+        self._connected() # FIXME
 
 
     def _connection_failed(self):
         self._ui.status_bar.showMessage("Connection failed!")
 
     def _connected(self):
+        print("connd")
         self._mainwindow = MainWindow(self._mainwindow_model)
         self._mainwindow.show()
         self.close()

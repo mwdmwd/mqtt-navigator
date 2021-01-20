@@ -1,7 +1,7 @@
 import json
 from typing import Optional
 
-from PySide2 import QtWidgets, QtCore
+from PySide2 import QtWidgets, QtCore, QtGui
 from PySide2.QtCharts import QtCharts
 from pytestqt.modeltest import ModelTester
 
@@ -22,7 +22,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._model.setFilterCaseSensitivity(QtCore.Qt.CaseSensitivity.CaseInsensitive)
         self._model.setRecursiveFilteringEnabled(True)
         self._model.setSourceModel(self._raw_model)
-        self._model = self._raw_model  # TODO FIXME
 
         self._ui = Ui_MainWindow()
         self._ui.setupUi(self)
@@ -38,6 +37,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._ui.table_history.setColumnCount(2)
 
         self._ui.chart_view = QtCharts.QChartView()
+        self._ui.chart_view.setRubberBand(QtCharts.QChartView.RubberBand.RectangleRubberBand)
+        #self._ui.chart_view.mouseReleaseEvent.connect(self._chart_mouse_released)
         self._chart = self._ui.chart_view.chart()
 
         self._chart.legend().hide()
@@ -73,7 +74,7 @@ class MainWindow(QtWidgets.QMainWindow):
             # Clear the chart and add a new series
             self._chart.removeAllSeries()
             series = QtCharts.QLineSeries()
-            self._chart.addSeries(series)
+            # self._chart.addSeries(series)
         else:  # We only need to process the added entries
             entries_to_process = model.payload_history[-added_rows:]  # added_rows last entries
             series = self._chart.series()[0]  # The chart will only have one series
@@ -89,6 +90,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 pass
 
         # Create or update the chart's axes
+        self._chart.addSeries(series)
         self._chart.createDefaultAxes()
 
     def _selected_node_updated(self, *, selection_changed=False):
@@ -105,6 +107,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._selected_node_updated(selection_changed=False)  # Update the view
 
     def _tree_selection_changed(self, selected: QtCore.QItemSelectionModel, _deselected):
+        selected = self._model.mapSelectionToSource(selected)
         model: MqTreeNode = selected.indexes()[0].internalPointer()
         self._selected_topic_model = model
         self._selected_node_updated(selection_changed=True)
@@ -112,6 +115,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def _search_text_changed(self):
         text = self._ui.text_tree_search.text()
         self._model.setFilterFixedString(text)
+
+    def _chart_mouse_released(self, mouse_event: QtGui.QMouseEvent):
+        print(mouse_event)
 
     def _send_to_editor_clicked(self):
         self._ui.text_topic.setText(self._ui.text_topic_rx.toPlainText())
