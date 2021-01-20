@@ -3,7 +3,6 @@ import sys
 
 from PySide2 import QtWidgets
 
-from mq_client import MqTreeModel, MqttListener
 from startupwindow import StartupWindow
 
 
