@@ -11,8 +11,8 @@ from ui.mainwindow import Ui_MainWindow
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    def __init__(self, model: MqTreeModel):
-        super().__init__()
+    def __init__(self, model: MqTreeModel, parent=None):
+        super().__init__(parent)
         self._selected_topic_model: Optional[MqTreeNode] = None
         self._raw_model = model
         self._raw_model.messageReceived.connect(self._on_message)
