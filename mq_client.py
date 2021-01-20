@@ -85,6 +85,7 @@ class MqttListener:
         self._port = port
 
         self._connect_listeners = []
+        self._connect_fail_listeners = []
         self._disconnect_listeners = []
         self._message_listeners = []
 
@@ -102,7 +103,6 @@ class MqttListener:
 
         self._mqtt.connect_async(self._host, self._port)
         self._mqtt.loop_start()
-        print("conn")
 
     def disconnect(self):
         self._mqtt.disconnect()
@@ -114,16 +114,24 @@ class MqttListener:
     def add_connect_listener(self, connect_listener):
         self._connect_listeners.append(connect_listener)
 
+    def add_connect_fail_listener(self, connect_fail_listener):
+        self._connect_fail_listeners.append(connect_fail_listener)
+
     def add_disconnect_listener(self, disconnect_listener):
         self._disconnect_listeners.append(disconnect_listener)
 
     def add_message_listener(self, message_listener):
         self._message_listeners.append(message_listener)
 
-    def _connect_listener(self, client: mqtt.Client, *args):
+    def _connect_listener(self, client: mqtt.Client, userdata, flags, rc):
+        if rc != 0:  # Connection failed
+            for listener in self._connect_fail_listeners:
+                listener(client)
+            return
+
         client.subscribe("#")  # Subscribe to all topics
         for listener in self._connect_listeners:  # Notify all other listeners
-            listener(client, *args)
+            listener(client, userdata, flags, rc)
 
     def _disconnect_listener(self, *args):
         for listener in self._disconnect_listeners:  # Notify all other listeners
