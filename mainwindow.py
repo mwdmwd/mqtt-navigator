@@ -22,6 +22,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._model.setFilterCaseSensitivity(QtCore.Qt.CaseSensitivity.CaseInsensitive)
         self._model.setRecursiveFilteringEnabled(True)
         self._model.setSourceModel(self._raw_model)
+        self._model = self._raw_model  # TODO FIXME
 
         self._ui = Ui_MainWindow()
         self._ui.setupUi(self)
@@ -38,7 +39,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._ui.chart_view = QtCharts.QChartView()
         self._ui.chart_view.setRubberBand(QtCharts.QChartView.RubberBand.RectangleRubberBand)
-        #self._ui.chart_view.mouseReleaseEvent.connect(self._chart_mouse_released)
+        # self._ui.chart_view.mouseReleaseEvent.connect(self._chart_mouse_released)
         self._chart = self._ui.chart_view.chart()
 
         self._chart.legend().hide()
@@ -107,7 +108,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._selected_node_updated(selection_changed=False)  # Update the view
 
     def _tree_selection_changed(self, selected: QtCore.QItemSelectionModel, _deselected):
-        selected = self._model.mapSelectionToSource(selected)
+        #selected = self._model.mapSelectionToSource(selected)
         model: MqTreeNode = selected.indexes()[0].internalPointer()
         self._selected_topic_model = model
         self._selected_node_updated(selection_changed=True)
