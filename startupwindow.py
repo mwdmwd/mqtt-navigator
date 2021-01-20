@@ -12,6 +12,7 @@ class StartupWindow(QtWidgets.QMainWindow):
         super().__init__(parent)
 
         self._mainwindow: Optional[MainWindow] = None
+        self._mainwindow_model: Optional[MqTreeModel] = None
 
         self._ui = Ui_StartupWindow()
         self._ui.setupUi(self)
