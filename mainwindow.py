@@ -117,7 +117,8 @@ class MainWindow(QtWidgets.QMainWindow):
             except ValueError:
                 pass
 
-        self._update_chart_axes(self._chart)
+        if not self._chart.isZoomed():
+            self._update_chart_axes(self._chart)
 
     def _selected_node_updated(self, *, selection_changed=False):
         model = self._selected_topic_model
