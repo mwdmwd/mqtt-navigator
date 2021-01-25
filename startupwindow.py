@@ -41,9 +41,13 @@ class StartupWindow(QtWidgets.QMainWindow):
 
         self._ui.status_bar.showMessage("Connecting...")
 
-        self._mainwindow_model = MqTreeModel(
-            self, mqtt_listener=mqtt_listener, saved_state=self._saved_state
-        )
+        # Don't restore state if the checkbox was unchecked after loading it
+        if self._ui.group_loadsession.isChecked():
+            state = self._saved_state
+        else:
+            state = None
+
+        self._mainwindow_model = MqTreeModel(self, mqtt_listener=mqtt_listener, saved_state=state)
         mqtt_listener.connect()
         self._connected()  # FIXME
 
