@@ -1,4 +1,5 @@
 import json
+import time
 from typing import Optional
 
 from PySide2 import QtWidgets, QtCore, QtGui
@@ -175,5 +176,8 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self._save_session(path):
             QtWidgets.QMessageBox.critical(self, "Error", "Failed to save session")
             return False
+
+        # Prevent "Internal C++ object already deleted" error
+        time.sleep(0.1)
 
         return True

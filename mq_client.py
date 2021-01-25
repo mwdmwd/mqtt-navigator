@@ -4,6 +4,7 @@ import collections
 import dataclasses
 from dataclasses import dataclass, field
 from datetime import datetime
+import json
 
 import paho.mqtt.client as mqtt
 from PySide2 import QtCore
@@ -65,6 +66,16 @@ class MqTreeNode:
             if child.topic_fragment == topic_frag:
                 return child
         return None
+
+    def asdict(self):
+        return {
+            "t": self.topic_fragment,
+            "h": [
+                MqHistoricalPayload(payload, timestamp.timestamp())
+                for (payload, timestamp) in self.payload_history
+            ],
+            "c": [child.asdict() for child in self._children],
+        }
 
 
 @dataclass
@@ -306,7 +317,7 @@ class MqTreeModel(QtCore.QAbstractItemModel):
         self.messageReceived.emit(node)  # Emit the signal with the updated node
 
     def _serialize_state(self) -> dict:
-        return {}
+        return self._root_item.asdict()
 
     def serialize(self) -> dict:
         return {
