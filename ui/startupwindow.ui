@@ -117,7 +117,11 @@
         <enum>QLayout::SetDefaultConstraint</enum>
        </property>
        <item>
-        <widget class="QLineEdit" name="text_session_path"/>
+        <widget class="QLineEdit" name="text_session_path">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QPushButton" name="button_browse_session">
