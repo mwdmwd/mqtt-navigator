@@ -1,6 +1,7 @@
 import json
 import time
-from typing import Optional
+import math
+from typing import Optional, List
 
 from PySide2 import QtWidgets, QtCore, QtGui
 from PySide2.QtCharts import QtCharts
@@ -44,9 +45,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._chart = self._ui.chart_view.chart()
 
         self._chart.legend().hide()
-        self._chart.addSeries(QtCharts.QLineSeries())
-        self._chart.createDefaultAxes()
-        self._chart.removeAllSeries()
 
         self._ui.chart_layout.addWidget(self._ui.chart_view)
 
@@ -62,6 +60,30 @@ class MainWindow(QtWidgets.QMainWindow):
             self._ui.tree_json_rx.setModel(None)
             self._ui.tree_json_rx.setDisabled(True)
 
+    @staticmethod
+    def _update_chart_axes(chart: QtCharts.QChart):
+        points: List[QtCore.QPointF] = chart.series()[0].points()
+
+        ax_x = chart.axisX()
+        ax_y = chart.axisY()
+
+        min_x, max_x, min_y, max_y = math.inf, -math.inf, math.inf, -math.inf
+        for point in points:
+            x = point.x()
+            if x < min_x:
+                min_x = x
+            if x > max_x:
+                max_x = x
+
+            y = point.y()
+            if y < min_y:
+                min_y = y
+            if y > max_y:
+                max_y = y
+
+        ax_x.setRange(min_x, max_x)
+        ax_y.setRange(min_y, max_y)
+
     def _update_history_table_and_chart(self, model, *, selection_changed=False):
         # First, save the old row count in case we need to append to the table
         start_row = self._ui.table_history.rowCount()
@@ -74,26 +96,28 @@ class MainWindow(QtWidgets.QMainWindow):
             start_row = 0
 
             # Clear the chart and add a new series
+            for axis in self._chart.axes():
+                self._chart.removeAxis(axis)
             self._chart.removeAllSeries()
+
             series = QtCharts.QLineSeries()
-            # self._chart.addSeries(series)
+            self._chart.addSeries(series)
+            self._chart.createDefaultAxes()
         else:  # We only need to process the added entries
             entries_to_process = model.payload_history[-added_rows:]  # added_rows last entries
             series = self._chart.series()[0]  # The chart will only have one series
 
-        for row, (payload, time) in enumerate(entries_to_process, start=start_row):
-            self._ui.table_history.setItem(row, 0, QtWidgets.QTableWidgetItem(str(time)))
+        for row, (payload, ptime) in enumerate(entries_to_process, start=start_row):
+            self._ui.table_history.setItem(row, 0, QtWidgets.QTableWidgetItem(str(ptime)))
             self._ui.table_history.setItem(row, 1, QtWidgets.QTableWidgetItem(payload))
 
             try:  # Append the value to the chart series if it is numeric
                 numeric_value = float(payload)
-                series.append(time.timestamp() * 1000, numeric_value)
+                series.append(ptime.timestamp() * 1000, numeric_value)
             except ValueError:
                 pass
 
-        # Create or update the chart's axes
-        self._chart.addSeries(series)
-        self._chart.createDefaultAxes()
+        self._update_chart_axes(self._chart)
 
     def _selected_node_updated(self, *, selection_changed=False):
         model = self._selected_topic_model
