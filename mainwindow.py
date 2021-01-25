@@ -60,30 +60,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self._ui.tree_json_rx.setModel(None)
             self._ui.tree_json_rx.setDisabled(True)
 
-    @staticmethod
-    def _update_chart_axes(chart: QtCharts.QChart):
-        points: List[QtCore.QPointF] = chart.series()[0].points()
-
-        ax_x = chart.axisX()
-        ax_y = chart.axisY()
-
-        min_x, max_x, min_y, max_y = math.inf, -math.inf, math.inf, -math.inf
-        for point in points:
-            x = point.x()
-            if x < min_x:
-                min_x = x
-            if x > max_x:
-                max_x = x
-
-            y = point.y()
-            if y < min_y:
-                min_y = y
-            if y > max_y:
-                max_y = y
-
-        ax_x.setRange(min_x, max_x)
-        ax_y.setRange(min_y, max_y)
-
     def _update_history_table_and_chart(self, model, *, selection_changed=False):
         # First, save the old row count in case we need to append to the table
         start_row = self._ui.table_history.rowCount()
@@ -118,7 +94,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 pass
 
         if not self._chart.isZoomed():
-            self._update_chart_axes(self._chart)
+            self._chart.fit_axes()
 
     def _selected_node_updated(self, *, selection_changed=False):
         model = self._selected_topic_model
