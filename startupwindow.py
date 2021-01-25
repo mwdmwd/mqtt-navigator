@@ -47,7 +47,7 @@ class StartupWindow(QtWidgets.QMainWindow):
         self._connected()  # FIXME
 
     def _browse_session_file(self):
-        filepath, filetype = QtWidgets.QFileDialog.getOpenFileName(
+        filepath, _filetype = QtWidgets.QFileDialog.getOpenFileName(
             self, "Open session", "", consts.SESSION_FILE_TYPES
         )
 

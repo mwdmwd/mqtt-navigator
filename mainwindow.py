@@ -139,7 +139,7 @@ class MainWindow(QtWidgets.QMainWindow):
             event.ignore()
 
     def _ask_save_path(self) -> Optional[str]:
-        filepath, filetype = QtWidgets.QFileDialog.getSaveFileName(
+        filepath, _filetype = QtWidgets.QFileDialog.getSaveFileName(
             self, "Save session", "", consts.SESSION_FILE_TYPES
         )
 
