@@ -61,12 +61,13 @@ class StartupWindow(QtWidgets.QMainWindow):
 
         try:
             with open(filepath) as session_file:
-                return json.load(session_file)
+                session = json.load(session_file)
         except:
             QtWidgets.QMessageBox.critical(self, "Error", "Failed to open session file.")
             return
 
         self._ui.text_session_path.setText(filepath)
+        return session
 
     def _load_session(self):
         session = self._load_session_file()
