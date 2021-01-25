@@ -94,7 +94,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 pass
 
         if not self._chart.isZoomed():
-            self._chart.fit_axes()
+            self._ui.chart_view.fit_axes()
 
     def _selected_node_updated(self, *, selection_changed=False):
         model = self._selected_topic_model

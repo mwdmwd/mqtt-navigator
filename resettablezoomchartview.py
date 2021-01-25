@@ -1,4 +1,5 @@
 from typing import List
+import math
 
 from PySide2 import QtGui, QtCore
 from PySide2.QtCharts import QtCharts
@@ -13,10 +14,11 @@ class ResettableZoomChartView(QtCharts.QChartView):
             super().mouseReleaseEvent(event)
 
     def fit_axes(self):
-        points: List[QtCore.QPointF] = self.series()[0].points()
+        chart = self.chart()
+        points: List[QtCore.QPointF] = chart.series()[0].points()
 
-        ax_x = self.axisX()
-        ax_y = self.axisY()
+        ax_x = chart.axisX()
+        ax_y = chart.axisY()
 
         min_x, max_x, min_y, max_y = math.inf, -math.inf, math.inf, -math.inf
         for point in points:
