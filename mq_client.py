@@ -337,6 +337,8 @@ class MqTreeModel(QtCore.QAbstractItemModel):
         else:
             self.layoutChanged.emit()  # Again, could be more specific
 
+        # FIXME phantom rows!
+        # only appear when row INSERTED, not for old/filtered data
         # self.beginResetModel()
         # self.endResetModel() # <- fixes it, missing some events? or wrong events?
 
