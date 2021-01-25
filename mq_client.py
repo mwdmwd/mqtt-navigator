@@ -305,8 +305,14 @@ class MqTreeModel(QtCore.QAbstractItemModel):
 
         self.messageReceived.emit(node)  # Emit the signal with the updated node
 
+    def _serialize_state(self) -> dict:
+        return {}
+
     def serialize(self) -> dict:
-        return {"config": self._mqtt.to_config()}
+        return {
+            "config": self._mqtt.to_config(),
+            "state": self._serialize_state(),
+        }
 
     @staticmethod
     def decode_payload(payload: bytes):

@@ -1,3 +1,4 @@
+import json
 from typing import Optional
 
 from PySide2 import QtWidgets, QtCore
@@ -22,7 +23,7 @@ class StartupWindow(QtWidgets.QMainWindow):
 
     def _setup_ui(self):
         self._ui.button_connect.clicked.connect(self._connect_clicked)
-        self._ui.button_browse_session.clicked.connect(self._browse_session_file)
+        self._ui.button_browse_session.clicked.connect(self._load_session)
 
     def _connect_clicked(self):
         host = self._ui.text_host.text()
@@ -46,7 +47,7 @@ class StartupWindow(QtWidgets.QMainWindow):
         mqtt_listener.connect()
         self._connected()  # FIXME
 
-    def _browse_session_file(self):
+    def _load_session_file(self) -> Optional[dict]:
         filepath, _filetype = QtWidgets.QFileDialog.getOpenFileName(
             self, "Open session", "", consts.SESSION_FILE_TYPES
         )
@@ -56,12 +57,35 @@ class StartupWindow(QtWidgets.QMainWindow):
 
         try:
             with open(filepath) as session_file:
-                pass
+                return json.load(session_file)
         except:
             QtWidgets.QMessageBox.critical(self, "Error", "Failed to open session file.")
             return
 
         self._ui.text_session_path.setText(filepath)
+
+    def _load_session(self):
+        session = self._load_session_file()
+        if not session:
+            return
+
+        config = session["config"]
+        self._saved_state = session["state"]
+
+        self._ui.text_host.setText(config["host"])
+        self._ui.num_port.setValue(config["port"])
+
+        username = config["username"]
+        if username:
+            self._ui.group_useauthn.setChecked(True)
+            self._ui.text_username.setText(username)
+            self._ui.text_password.setText(config["password"])
+        else:
+            self._ui.group_useauthn.setChecked(False)
+            self._ui.text_username.setText("")
+            self._ui.text_password.setText("")
+
+        self._ui.status_bar.showMessage("Loaded session.")
 
     def _connection_failed(self):
         self._ui.status_bar.showMessage("Connection failed!")
