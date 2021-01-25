@@ -290,6 +290,9 @@ class MqTreeModel(QtCore.QAbstractItemModel):
         else:
             self.layoutChanged.emit()  # Again, could be more specific
 
+        #self.beginResetModel()
+        #self.endResetModel() # <- fixes it, missing some events? or wrong events?
+
         self.messageReceived.emit(node)  # Emit the signal with the updated node
 
     @staticmethod
