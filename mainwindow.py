@@ -9,6 +9,7 @@ from pytestqt.modeltest import ModelTester
 import consts
 from mq_client import MqTreeNode, MqTreeModel
 from qjsonmodel import QJsonModel
+from resettablezoomchartview import ResettableZoomChartView
 from ui.mainwindow import Ui_MainWindow
 
 
@@ -38,9 +39,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._ui.table_history.setColumnCount(2)
 
-        self._ui.chart_view = QtCharts.QChartView()
+        self._ui.chart_view = ResettableZoomChartView()
         self._ui.chart_view.setRubberBand(QtCharts.QChartView.RubberBand.RectangleRubberBand)
-        # self._ui.chart_view.mouseReleaseEvent.connect(self._chart_mouse_released)
         self._chart = self._ui.chart_view.chart()
 
         self._chart.legend().hide()
