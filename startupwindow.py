@@ -20,6 +20,7 @@ class StartupWindow(QtWidgets.QMainWindow):
 
     def _setup_ui(self):
         self._ui.button_connect.clicked.connect(self._connect_clicked)
+        self._ui.button_browse_session.clicked.connect(self._browse_session_file)
 
     def _connect_clicked(self):
         host = self._ui.text_host.text()
@@ -39,8 +40,24 @@ class StartupWindow(QtWidgets.QMainWindow):
 
         self._mainwindow_model = MqTreeModel(self, mqtt_listener=mqtt_listener)
         mqtt_listener.connect()
-        self._connected() # FIXME
+        # self._connected() # FIXME
 
+    def _browse_session_file(self):
+        filepath, filetype = QtWidgets.QFileDialog.getOpenFileName(
+            self, "Open session", ".", "MQTT Navigator sessions (*.mqtt-navigator);;All files (*)"
+        )
+
+        if not filepath:
+            return
+
+        try:
+            with open(filepath) as session_file:
+                pass
+        except:
+            QtWidgets.QMessageBox.critical(self, "Error", "Failed to open session file.")
+            return
+
+        self._ui.text_session_path.setText(filepath)
 
     def _connection_failed(self):
         self._ui.status_bar.showMessage("Connection failed!")
@@ -50,4 +67,3 @@ class StartupWindow(QtWidgets.QMainWindow):
         self._mainwindow = MainWindow(self._mainwindow_model)
         self._mainwindow.show()
         self.close()
-
