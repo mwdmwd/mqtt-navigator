@@ -2,6 +2,7 @@ from typing import Optional
 
 from PySide2 import QtWidgets, QtCore
 
+import consts
 from mq_client import MqttListener, MqTreeModel
 from ui.startupwindow import Ui_StartupWindow
 from mainwindow import MainWindow
@@ -13,6 +14,7 @@ class StartupWindow(QtWidgets.QMainWindow):
 
         self._mainwindow: Optional[MainWindow] = None
         self._mainwindow_model: Optional[MqTreeModel] = None
+        self._saved_state = {}
 
         self._ui = Ui_StartupWindow()
         self._ui.setupUi(self)
@@ -38,13 +40,15 @@ class StartupWindow(QtWidgets.QMainWindow):
 
         self._ui.status_bar.showMessage("Connecting...")
 
-        self._mainwindow_model = MqTreeModel(self, mqtt_listener=mqtt_listener)
+        self._mainwindow_model = MqTreeModel(
+            self, mqtt_listener=mqtt_listener, saved_state=self._saved_state
+        )
         mqtt_listener.connect()
-        self._connected() # FIXME
+        self._connected()  # FIXME
 
     def _browse_session_file(self):
         filepath, filetype = QtWidgets.QFileDialog.getOpenFileName(
-            self, "Open session", ".", "MQTT Navigator sessions (*.mqtt-navigator);;All files (*)"
+            self, "Open session", "", consts.SESSION_FILE_TYPES
         )
 
         if not filepath:

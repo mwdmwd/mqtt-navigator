@@ -5,6 +5,7 @@ from PySide2 import QtWidgets, QtCore, QtGui
 from PySide2.QtCharts import QtCharts
 from pytestqt.modeltest import ModelTester
 
+import consts
 from mq_client import MqTreeNode, MqTreeModel
 from qjsonmodel import QJsonModel
 from ui.mainwindow import Ui_MainWindow
@@ -130,3 +131,36 @@ class MainWindow(QtWidgets.QMainWindow):
         retain = self._ui.checkbox_retain.isChecked()
 
         self._raw_model.mqtt_publish(topic, payload, qos, retain)
+
+    def closeEvent(self, event):
+        if self._ask_close():
+            event.accept()
+        else:
+            event.ignore()
+
+    def _ask_save_path(self) -> Optional[str]:
+        filepath, filetype = QtWidgets.QFileDialog.getSaveFileName(
+            self, "Save session", "", consts.SESSION_FILE_TYPES
+        )
+
+        return filepath
+
+    def _ask_close(self) -> bool:
+        buttons = QtWidgets.QMessageBox.StandardButtons(
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel
+        )
+
+        answer = QtWidgets.QMessageBox.question(
+            self, "Session save", "Do you want to save this session?", buttons
+        )
+
+        if answer == QtWidgets.QMessageBox.Cancel:
+            return False
+        elif answer == QtWidgets.QMessageBox.No:
+            return True
+
+        path = self._ask_save_path()
+        if not path:
+            return False  # Don't close if user clicked "Yes" and didn't provide a path
+
+        return True
