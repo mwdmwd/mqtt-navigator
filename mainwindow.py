@@ -148,7 +148,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _save_session(self, path: str) -> bool:
         try:
             with open(path, "w") as sessionfile:
-                json.dump(self._raw_model.serialize(), sessionfile)
+                json.dump(self._raw_model.serialize(), sessionfile, separators=(",", ":"))
         except:
             return False
 
