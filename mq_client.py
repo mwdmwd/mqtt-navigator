@@ -83,6 +83,8 @@ class MqttListener:
         self._mqtt = mqtt.Client()
         self._host = host
         self._port = port
+        self._username = username
+        self._password = password
 
         self._connect_listeners = []
         self._connect_fail_listeners = []
@@ -90,11 +92,19 @@ class MqttListener:
         self._message_listeners = []
 
         if username:
-            self._mqtt.username_pw_set(username, password)
+            self._mqtt.username_pw_set(self._username, self._password)
 
     @staticmethod
     def from_config(config: MqttListenerConfiguration) -> MqttListener:
         return MqttListener(**dataclasses.asdict(config))
+
+    def to_config(self) -> dict:
+        return {
+            "host": self._host,
+            "port": self._port,
+            "username": self._username,
+            "password": self._password,
+        }
 
     def connect(self):
         self._mqtt.on_connect = self._connect_listener
@@ -290,10 +300,13 @@ class MqTreeModel(QtCore.QAbstractItemModel):
         else:
             self.layoutChanged.emit()  # Again, could be more specific
 
-        #self.beginResetModel()
-        #self.endResetModel() # <- fixes it, missing some events? or wrong events?
+        # self.beginResetModel()
+        # self.endResetModel() # <- fixes it, missing some events? or wrong events?
 
         self.messageReceived.emit(node)  # Emit the signal with the updated node
+
+    def serialize(self) -> dict:
+        return {"config": self._mqtt.to_config()}
 
     @staticmethod
     def decode_payload(payload: bytes):

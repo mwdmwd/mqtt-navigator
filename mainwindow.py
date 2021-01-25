@@ -145,6 +145,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
         return filepath
 
+    def _save_session(self, path: str) -> bool:
+        try:
+            with open(path, "w") as sessionfile:
+                json.dump(self._raw_model.serialize(), sessionfile)
+        except:
+            return False
+
+        return True
+
     def _ask_close(self) -> bool:
         buttons = QtWidgets.QMessageBox.StandardButtons(
             QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel
@@ -162,5 +171,9 @@ class MainWindow(QtWidgets.QMainWindow):
         path = self._ask_save_path()
         if not path:
             return False  # Don't close if user clicked "Yes" and didn't provide a path
+
+        if not self._save_session(path):
+            QtWidgets.QMessageBox.critical(self, "Error", "Failed to save session")
+            return False
 
         return True
