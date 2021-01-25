@@ -78,20 +78,23 @@ class MqTreeNode:
         }
 
     @staticmethod
-    def parse(d: dict) -> MqTreeNode:
-        topic = d["t"]
+    def parse(node_dict: dict) -> MqTreeNode:
+        topic = node_dict["t"]
         payload = ""
 
         # Convert timestamps to Python representation
-        for hist_item in d["h"]:
+        for hist_item in node_dict["h"]:
             hist_item[1] = datetime.fromtimestamp(hist_item[1])
 
-        history = [MqHistoricalPayload(*pl) for pl in d["h"]]
+        history = [MqHistoricalPayload(*pl) for pl in node_dict["h"]]
         if history:
             payload = history[-1].payload
 
+        # Reconstitute node
         node = MqTreeNode(topic, payload, history)
-        node._children = [MqTreeNode.parse(child) for child in d["c"]]
+        node._children = [MqTreeNode.parse(child) for child in node_dict["c"]]
+
+        # Reconnect children
         for child in node._children:
             child._parent = node
 
