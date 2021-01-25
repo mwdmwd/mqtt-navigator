@@ -40,7 +40,7 @@ class StartupWindow(QtWidgets.QMainWindow):
 
         self._mainwindow_model = MqTreeModel(self, mqtt_listener=mqtt_listener)
         mqtt_listener.connect()
-        # self._connected() # FIXME
+        self._connected() # FIXME
 
     def _browse_session_file(self):
         filepath, filetype = QtWidgets.QFileDialog.getOpenFileName(
