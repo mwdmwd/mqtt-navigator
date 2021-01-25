@@ -77,6 +77,26 @@ class MqTreeNode:
             "c": [child.asdict() for child in self._children],
         }
 
+    @staticmethod
+    def parse(d: dict) -> MqTreeNode:
+        topic = d["t"]
+        payload = ""
+
+        # Convert timestamps to Python representation
+        for hist_item in d["h"]:
+            hist_item[1] = datetime.fromtimestamp(hist_item[1])
+
+        history = [MqHistoricalPayload(*pl) for pl in d["h"]]
+        if history:
+            payload = history[-1].payload
+
+        node = MqTreeNode(topic, payload, history)
+        node._children = [MqTreeNode.parse(child) for child in d["c"]]
+        for child in node._children:
+            child._parent = node
+
+        return node
+
 
 @dataclass
 class MqttListenerConfiguration:
@@ -178,7 +198,10 @@ class MqTreeModel(QtCore.QAbstractItemModel):
         super().__init__(parent)
 
         self._entries = {}
-        self._root_item = MqTreeNode("", "")
+        if saved_state:
+            self._root_item = MqTreeNode.parse(saved_state)
+        else:
+            self._root_item = MqTreeNode("", "")
 
         self._mqtt = mqtt_listener
         if self._mqtt:
