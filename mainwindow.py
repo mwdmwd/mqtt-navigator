@@ -119,9 +119,6 @@ class MainWindow(QtWidgets.QMainWindow):
         text = self._ui.text_tree_search.text()
         self._model.setFilterFixedString(text)
 
-    def _chart_mouse_released(self, mouse_event: QtGui.QMouseEvent):
-        print(mouse_event)
-
     def _send_to_editor_clicked(self):
         self._ui.text_topic.setText(self._ui.text_topic_rx.toPlainText())
         self._ui.text_payload.setText(self._ui.text_payload_rx.toPlainText())
