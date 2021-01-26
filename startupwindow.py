@@ -25,7 +25,7 @@ class StartupWindow(QtWidgets.QMainWindow):
         self._ui.button_connect.clicked.connect(self._connect_clicked)
         self._ui.button_browse_session.clicked.connect(self._load_session)
 
-    def _connect_clicked(self):
+    def _get_host_and_state(self) -> (str, dict):
         # Don't restore state if the checkbox was unchecked after loading it
         if self._ui.group_loadsession.isChecked():
             state = self._saved_state
@@ -38,6 +38,11 @@ class StartupWindow(QtWidgets.QMainWindow):
             state = None
 
         host = self._ui.text_host.text()
+
+        return host, state
+
+    def _connect_clicked(self):
+        host, state = self._get_host_and_state()
         if not state and not host:
             QtWidgets.QMessageBox.warning(
                 self,
