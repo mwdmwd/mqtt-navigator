@@ -59,11 +59,14 @@ class StartupWindow(QtWidgets.QMainWindow):
             mqtt_listener.add_connect_listener(self._connected)
 
             self._ui.status_bar.showMessage("Connecting...")
-            self._mainwindow_model = MqTreeModel(self, mqtt_listener=mqtt_listener, saved_state=state)
+            self._mainwindow_model = MqTreeModel(
+                self, mqtt_listener=mqtt_listener, saved_state=state
+            )
             mqtt_listener.connect()
+            self._connected()  # FIXME
         else:
             self._mainwindow_model = MqTreeModel(self, saved_state=state)
-            self._connected()  # FIXME
+            self._connected()
 
     def _load_session_file(self) -> Optional[dict]:
         filepath, _filetype = QtWidgets.QFileDialog.getOpenFileName(
