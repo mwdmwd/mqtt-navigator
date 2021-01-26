@@ -5,10 +5,10 @@ from typing import Optional
 from PySide2 import QtWidgets, QtCore, QtGui
 from PySide2.QtCharts import QtCharts
 
-import consts
-from mq_client import MqTreeNode, MqTreeModel
-from qjsonmodel import QJsonModel
-from resettablezoomchartview import ResettableZoomChartView
+from common import consts
+from models.mq_client import MqTreeNode, MqTreeModel
+from models.qjsonmodel import QJsonModel
+from views.resettablezoomchartview import ResettableZoomChartView
 from ui.mainwindow import Ui_MainWindow
 
 

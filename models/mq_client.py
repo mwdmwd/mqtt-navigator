@@ -9,7 +9,7 @@ import paho.mqtt.client as mqtt
 from PySide2 import QtCore
 from PySide2.QtCore import Qt
 
-import consts
+from common import consts
 
 
 MqHistoricalPayload = collections.namedtuple("MqHistoricalPayload", ["payload", "timestamp"])

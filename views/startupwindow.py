@@ -3,10 +3,10 @@ from typing import Optional
 
 from PySide2 import QtWidgets, QtCore
 
-import consts
-from mq_client import MqttListener, MqTreeModel
+from common import consts
+from models.mq_client import MqttListener, MqTreeModel
 from ui.startupwindow import Ui_StartupWindow
-from mainwindow import MainWindow
+from views.mainwindow import MainWindow
 
 
 class StartupWindow(QtWidgets.QMainWindow):

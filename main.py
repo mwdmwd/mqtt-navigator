@@ -3,7 +3,7 @@ import sys
 
 from PySide2 import QtWidgets
 
-from startupwindow import StartupWindow
+from views.startupwindow import StartupWindow
 
 
 def main(argv):
