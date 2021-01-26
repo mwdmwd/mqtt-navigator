@@ -330,12 +330,12 @@ class MqTreeModel(QtCore.QAbstractItemModel):
             node.payload_history.append(MqHistoricalPayload(payload, datetime.now()))
             node.payload = payload
 
-        if not remain:
+        if remain:
+            self.layoutChanged.emit()  # Again, could be more specific
+        else:
             index = self.index_for_model(node).siblingAtColumn(1)
             print(index.row(), index.column())
             self.dataChanged.emit(index, index)
-        else:
-            self.layoutChanged.emit()  # Again, could be more specific
 
         # FIXME phantom rows!
         # only appear when row INSERTED, not for old/filtered data
