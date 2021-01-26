@@ -311,7 +311,6 @@ class MqTreeModel(QtCore.QAbstractItemModel):
         return (node, topic_path)
 
     def on_message(self, _client, _userdata, msg):
-        print(msg.topic)
         path = msg.topic.split("/")
         node, remain = self.find_node(path)
 
@@ -337,13 +336,7 @@ class MqTreeModel(QtCore.QAbstractItemModel):
             self.layoutChanged.emit()  # Again, could be more specific
         else:
             index = self.index_for_model(node).siblingAtColumn(1)
-            print(index.row(), index.column())
             self.dataChanged.emit(index, index)
-
-        # FIXME phantom rows!
-        # only appear when row INSERTED, not for old/filtered data
-        # self.beginResetModel()
-        # self.endResetModel() # <- fixes it, missing some events? or wrong events?
 
         self.messageReceived.emit(node)  # Emit the signal with the updated node
 
