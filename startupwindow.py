@@ -69,16 +69,26 @@ class StartupWindow(QtWidgets.QMainWindow):
         self._ui.text_session_path.setText(filepath)
         return session
 
+    def _count_history_entries(self, state):
+        entries = len(state[consts.SESSION_HISTORY_KEY])
+        if state[consts.SESSION_CHILDREN_KEY]:
+            entries += sum(self._count_history_entries(c) for c in state[consts.SESSION_CHILDREN_KEY])
+
+        return entries
+
     def _load_session(self):
         session = self._load_session_file()
         if not session:
             return
 
         config = session["config"]
-        self._saved_state = session["state"]
+        state = session["state"]
+
+        self._saved_state = state
 
         self._ui.text_host.setText(config["host"])
         self._ui.num_port.setValue(config["port"])
+        self._ui.label_num_history_entries.setText(f"Session contains {self._count_history_entries(state)} history entries.")
 
         username = config["username"]
         if username:

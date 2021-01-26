@@ -69,30 +69,32 @@ class MqTreeNode:
 
     def asdict(self):
         return {
-            "t": self.topic_fragment,
-            "h": [
+            consts.SESSION_TOPIC_FRAGMENT_KEY: self.topic_fragment,
+            consts.SESSION_HISTORY_KEY: [
                 MqHistoricalPayload(payload, timestamp.timestamp())
                 for (payload, timestamp) in self.payload_history
             ],
-            "c": [child.asdict() for child in self._children],
+            consts.SESSION_CHILDREN_KEY: [child.asdict() for child in self._children],
         }
 
     @staticmethod
     def parse(node_dict: dict) -> MqTreeNode:
-        topic = node_dict["t"]
+        topic = node_dict[consts.SESSION_TOPIC_FRAGMENT_KEY]
         payload = ""
 
         # Convert timestamps to Python representation
-        for hist_item in node_dict["h"]:
+        for hist_item in node_dict[consts.SESSION_HISTORY_KEY]:
             hist_item[1] = datetime.fromtimestamp(hist_item[1])
 
-        history = [MqHistoricalPayload(*pl) for pl in node_dict["h"]]
+        history = [MqHistoricalPayload(*pl) for pl in node_dict[consts.SESSION_HISTORY_KEY]]
         if history:
             payload = history[-1].payload
 
         # Reconstitute node
         node = MqTreeNode(topic, payload, history)
-        node._children = [MqTreeNode.parse(child) for child in node_dict["c"]]
+        node._children = [
+            MqTreeNode.parse(child) for child in node_dict[consts.SESSION_CHILDREN_KEY]
+        ]
 
         # Reconnect children
         for child in node._children:
