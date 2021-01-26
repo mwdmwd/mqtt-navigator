@@ -268,6 +268,21 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>text_tree_search</tabstop>
+  <tabstop>tree_view</tabstop>
+  <tabstop>text_topic_rx</tabstop>
+  <tabstop>button_send_to_editor</tabstop>
+  <tabstop>rx_layout</tabstop>
+  <tabstop>text_payload_rx</tabstop>
+  <tabstop>tree_json_rx</tabstop>
+  <tabstop>table_history</tabstop>
+  <tabstop>text_topic</tabstop>
+  <tabstop>text_payload</tabstop>
+  <tabstop>num_qos</tabstop>
+  <tabstop>checkbox_retain</tabstop>
+  <tabstop>button_publish</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
