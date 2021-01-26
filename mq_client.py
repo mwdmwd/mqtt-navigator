@@ -272,11 +272,7 @@ class MqTreeModel(QtCore.QAbstractItemModel):
         item: MqTreeNode = index.internalPointer()
 
         if role == QtCore.Qt.DisplayRole:
-            if index.column() == 0:
-                return item.topic_fragment
-
-            if index.column() == 1:
-                return item.payload
+            return item.data(index.column())
         elif role == consts.FULL_TOPIC_ROLE:
             return item.full_topic()
 
