@@ -26,30 +26,44 @@ class StartupWindow(QtWidgets.QMainWindow):
         self._ui.button_browse_session.clicked.connect(self._load_session)
 
     def _connect_clicked(self):
-        host = self._ui.text_host.text()
-        port = self._ui.num_port.value()
-
-        if self._ui.group_useauthn.isChecked():
-            username = self._ui.text_username.text()
-            password = self._ui.text_password.text()
-            mqtt_listener = MqttListener(host, port, username, password)
-        else:
-            mqtt_listener = MqttListener(host, port)
-
-        mqtt_listener.add_connect_fail_listener(self._connection_failed)
-        mqtt_listener.add_connect_listener(self._connected)
-
-        self._ui.status_bar.showMessage("Connecting...")
-
         # Don't restore state if the checkbox was unchecked after loading it
         if self._ui.group_loadsession.isChecked():
             state = self._saved_state
+            if not state:
+                QtWidgets.QMessageBox.information(
+                    self, "Session", 'Please select a session file or uncheck "Load saved session".'
+                )
+                return
         else:
             state = None
 
-        self._mainwindow_model = MqTreeModel(self, mqtt_listener=mqtt_listener, saved_state=state)
-        mqtt_listener.connect()
-        self._connected()  # FIXME
+        host = self._ui.text_host.text()
+        if not state and not host:
+            QtWidgets.QMessageBox.warning(
+                self,
+                "Invalid settings",
+                "Please enter a host to connect to, or load a saved session to browse it without connecting.",
+            )
+            return
+
+        if host:
+            port = self._ui.num_port.value()
+            if self._ui.group_useauthn.isChecked():
+                username = self._ui.text_username.text()
+                password = self._ui.text_password.text()
+                mqtt_listener = MqttListener(host, port, username, password)
+            else:
+                mqtt_listener = MqttListener(host, port)
+
+            mqtt_listener.add_connect_fail_listener(self._connection_failed)
+            mqtt_listener.add_connect_listener(self._connected)
+
+            self._ui.status_bar.showMessage("Connecting...")
+            self._mainwindow_model = MqTreeModel(self, mqtt_listener=mqtt_listener, saved_state=state)
+            mqtt_listener.connect()
+        else:
+            self._mainwindow_model = MqTreeModel(self, saved_state=state)
+            self._connected()  # FIXME
 
     def _load_session_file(self) -> Optional[dict]:
         filepath, _filetype = QtWidgets.QFileDialog.getOpenFileName(
