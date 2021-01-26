@@ -121,7 +121,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._selected_node_updated(selection_changed=False)  # Update the view
 
         # Refresh the filter proxy model. This *theoretically* shouldn't be necessary,
-        # but not doing it makes extra rows appear out of thin air?
+        # but not doing it makes extra rows appear
         self._model.invalidate()
 
     def _tree_selection_changed(self, selected: QtCore.QItemSelectionModel, _deselected):
