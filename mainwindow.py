@@ -50,7 +50,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _try_parse_and_display_json(self, payload):
         try:
             json_data = json.loads(payload)
-            json_model = QJsonModel()
+            json_model = QJsonModel(read_only=True)
             json_model.load(json_data)
             self._ui.tree_json_rx.setModel(json_model)
             self._ui.tree_json_rx.setDisabled(False)

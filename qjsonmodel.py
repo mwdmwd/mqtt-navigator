@@ -119,8 +119,10 @@ class QJsonTreeItem(object):
 
 
 class QJsonModel(QtCore.QAbstractItemModel):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, read_only=False):
         super(QJsonModel, self).__init__(parent)
+
+        self._read_only = read_only
 
         self._rootItem = QJsonTreeItem()
         self._headers = ("Key", "Value")
@@ -170,18 +172,17 @@ class QJsonModel(QtCore.QAbstractItemModel):
 
         item = index.internalPointer()
 
-        if role == QtCore.Qt.DisplayRole:
+        if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
             if index.column() == 0:
                 return item.key
 
             if index.column() == 1:
                 return item.value
 
-        elif role == QtCore.Qt.EditRole:
-            if index.column() == 1:
-                return item.value
-
     def setData(self, index, value, role):
+        if self._read_only:
+            return False
+
         if role == QtCore.Qt.EditRole:
             if index.column() == 1:
                 item = index.internalPointer()
@@ -242,12 +243,7 @@ class QJsonModel(QtCore.QAbstractItemModel):
         return 2
 
     def flags(self, index):
-        flags = super(QJsonModel, self).flags(index)
-
-        if index.column() == 1:
-            return QtCore.Qt.ItemIsEditable | flags
-        else:
-            return flags
+        return super(QJsonModel, self).flags(index) | QtCore.Qt.ItemIsEditable
 
     def genJson(self, item):
         nchild = item.childCount()
