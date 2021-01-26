@@ -37,6 +37,9 @@
             <verstretch>1</verstretch>
            </sizepolicy>
           </property>
+          <attribute name="headerDefaultSectionSize">
+           <number>120</number>
+          </attribute>
          </widget>
         </item>
        </layout>
