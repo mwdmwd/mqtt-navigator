@@ -4,7 +4,7 @@ from typing import Optional
 from PySide2 import QtWidgets, QtCore
 
 from common import consts
-from models.mq_client import MqttListener, MqTreeModel
+from models.mqtreemodel import MqttListener, MqTreeModel
 from ui.startupwindow import Ui_StartupWindow
 from views.mainwindow import MainWindow
 

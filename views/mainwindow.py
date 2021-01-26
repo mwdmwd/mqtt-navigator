@@ -6,7 +6,7 @@ from PySide2 import QtWidgets, QtCore, QtGui
 from PySide2.QtCharts import QtCharts
 
 from common import consts
-from models.mq_client import MqTreeNode, MqTreeModel
+from models.mqtreemodel import MqTreeNode, MqTreeModel
 from models.qjsonmodel import QJsonModel
 from views.resettablezoomchartview import ResettableZoomChartView
 from ui.mainwindow import Ui_MainWindow
