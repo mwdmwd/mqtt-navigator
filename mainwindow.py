@@ -1,11 +1,9 @@
 import json
 import time
-import math
-from typing import Optional, List
+from typing import Optional
 
 from PySide2 import QtWidgets, QtCore, QtGui
 from PySide2.QtCharts import QtCharts
-from pytestqt.modeltest import ModelTester
 
 import consts
 from mq_client import MqTreeNode, MqTreeModel

@@ -4,7 +4,6 @@ import collections
 import dataclasses
 from dataclasses import dataclass, field
 from datetime import datetime
-import json
 
 import paho.mqtt.client as mqtt
 from PySide2 import QtCore
