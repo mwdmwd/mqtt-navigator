@@ -355,16 +355,3 @@ class MqTreeModel(QtCore.QAbstractItemModel):
             return payload.decode("UTF-8")
         except UnicodeDecodeError:
             return repr(payload)
-
-
-# page_chart = window.ui.page_chart
-
-# chart_view = QtCharts.QChartView()
-
-# series = QtCharts.QLineSeries()
-# series.append(0, 6)
-# series.append(2, 4)
-
-# chart_view.chart().addSeries(series)
-# chart_view.chart().createDefaultAxes()
-# window.ui.chart_layout.addWidget(chart_view)
