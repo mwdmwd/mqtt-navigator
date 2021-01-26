@@ -23,7 +23,11 @@
       <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
-         <widget class="QLineEdit" name="text_tree_search"/>
+         <widget class="QLineEdit" name="text_tree_search">
+          <property name="placeholderText">
+           <string>Search topics and messages</string>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QTreeView" name="tree_view">
