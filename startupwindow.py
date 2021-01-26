@@ -10,8 +10,14 @@ from mainwindow import MainWindow
 
 
 class StartupWindow(QtWidgets.QMainWindow):
+    connected = QtCore.Signal()
+    connection_failed = QtCore.Signal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        self.connected.connect(self._connected)
+        self.connection_failed.connect(self._connection_failed)
 
         self._mainwindow: Optional[MainWindow] = None
         self._mainwindow_model: Optional[MqTreeModel] = None
@@ -60,18 +66,17 @@ class StartupWindow(QtWidgets.QMainWindow):
             else:
                 mqtt_listener = MqttListener(host, port)
 
-            mqtt_listener.add_connect_fail_listener(self._connection_failed)
-            mqtt_listener.add_connect_listener(self._connected)
+            mqtt_listener.add_connect_fail_listener(self._on_connection_failed)
+            mqtt_listener.add_connect_listener(self._on_connected)
 
             self._ui.status_bar.showMessage("Connecting...")
             self._mainwindow_model = MqTreeModel(
                 self, mqtt_listener=mqtt_listener, saved_state=state
             )
-            mqtt_listener.connect()
-            self._connected()  # FIXME
+            mqtt_listener.connect()  # Will end up calling _connected or _connection_failed
         else:
             self._mainwindow_model = MqTreeModel(self, saved_state=state)
-            self._connected()
+            self._connected()  # Call _connected directly to proceed to the main window
 
     def _load_session_file(self) -> Optional[dict]:
         filepath, _filetype = QtWidgets.QFileDialog.getOpenFileName(
@@ -128,11 +133,16 @@ class StartupWindow(QtWidgets.QMainWindow):
 
         self._ui.status_bar.showMessage("Loaded session.")
 
+    def _on_connection_failed(self):
+        self.connection_failed.emit()
+
     def _connection_failed(self):
         self._ui.status_bar.showMessage("Connection failed!")
 
+    def _on_connected(self, *_args):
+        self.connected.emit()
+
     def _connected(self):
-        print("connd")
         self._mainwindow = MainWindow(self._mainwindow_model)
         self._mainwindow.show()
         self.close()

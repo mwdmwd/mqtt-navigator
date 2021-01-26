@@ -177,7 +177,6 @@ class MqttListener:
 
         client.subscribe("#")  # Subscribe to all topics
         for listener in self._connect_listeners:  # Notify all other listeners
-            print("call lsnr")
             listener(client, userdata, flags, rc)
 
     def _disconnect_listener(self, *args):
