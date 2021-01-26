@@ -233,8 +233,7 @@ class MqTreeModel(QtCore.QAbstractItemModel):
         return Qt.ItemFlag.ItemIsEnabled | Qt.ItemIsSelectable
 
     def index(self, row, column, parent=QtCore.QModelIndex()):
-        # If these coordinates are out of bounds for this parent, return an invalid index
-        if not self.hasIndex(row, column, parent):
+        if column > 1:
             return QtCore.QModelIndex()
 
         if not parent.isValid():
@@ -246,7 +245,7 @@ class MqTreeModel(QtCore.QAbstractItemModel):
         if child_item:
             return self.createIndex(row, column, child_item)
 
-        # Return an invalid index (represents the root)
+        # Return an invalid index
         return QtCore.QModelIndex()
 
     def index_for_model(self, model: MqTreeNode) -> Optional[QtCore.QModelIndex]:
