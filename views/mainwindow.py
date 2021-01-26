@@ -36,8 +36,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._ui.button_publish.clicked.connect(self._publish_clicked)
         self._ui.text_tree_search.textChanged.connect(self._search_text_changed)
 
-        self._ui.table_history.setColumnCount(2)
-
         self._ui.chart_view = ResettableZoomChartView()
         self._ui.chart_view.setRubberBand(QtCharts.QChartView.RubberBand.RectangleRubberBand)
         self._ui.chart_view.setRenderHint(QtGui.QPainter.Antialiasing)
