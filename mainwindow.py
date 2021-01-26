@@ -61,6 +61,16 @@ class MainWindow(QtWidgets.QMainWindow):
             self._ui.tree_json_rx.setModel(None)
             self._ui.tree_json_rx.setDisabled(True)
 
+    def _create_chart_axes(self, series):
+        ax_x = QtCharts.QDateTimeAxis()
+        ax_x.setFormat("HH:mm:ss")
+        self._chart.addAxis(ax_x, QtCore.Qt.AlignBottom)
+        series.attachAxis(ax_x)
+
+        ax_y = QtCharts.QValueAxis()
+        self._chart.addAxis(ax_y, QtCore.Qt.AlignLeft)
+        series.attachAxis(ax_y)
+
     def _update_history_table_and_chart(self, model, *, selection_changed=False):
         # First, save the old row count in case we need to append to the table
         start_row = self._ui.table_history.rowCount()
@@ -79,7 +89,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
             series = QtCharts.QLineSeries()
             self._chart.addSeries(series)
-            self._chart.createDefaultAxes()
+
+            # Add a new set of axes
+            self._create_chart_axes(series)
         else:  # We only need to process the added entries
             entries_to_process = model.payload_history[-added_rows:]  # added_rows last entries
             series = self._chart.series()[0]  # The chart will only have one series

@@ -34,5 +34,7 @@ class ResettableZoomChartView(QtCharts.QChartView):
             if y > max_y:
                 max_y = y
 
-        ax_x.setRange(min_x, max_x)
+        ax_x.setRange(
+            QtCore.QDateTime.fromMSecsSinceEpoch(min_x), QtCore.QDateTime.fromMSecsSinceEpoch(max_x)
+        )
         ax_y.setRange(min_y, max_y)
