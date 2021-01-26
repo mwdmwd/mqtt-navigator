@@ -91,6 +91,8 @@ class MainWindow(QtWidgets.QMainWindow):
             # Add a new set of axes
             self._create_chart_axes(series)
         else:  # We only need to process the added entries
+            if not added_rows:
+                return  # So return if there weren't any
             entries_to_process = model.payload_history[-added_rows:]  # added_rows last entries
             series = self._chart.series()[0]  # The chart will only have one series
 
