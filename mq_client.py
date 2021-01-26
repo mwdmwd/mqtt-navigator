@@ -222,12 +222,13 @@ class MqTreeModel(QtCore.QAbstractItemModel):
             return self._root_item.child_count()
         return parent.internalPointer().child_count()
 
-    def headerData(self, _section, orientation, role):
-        if role != QtCore.Qt.DisplayRole:
-            return None
-
-        if orientation == QtCore.Qt.Horizontal:
-            return ""
+    def headerData(self, section, orientation, role):
+        if role == QtCore.Qt.DisplayRole and orientation == QtCore.Qt.Horizontal:
+            if section == 0:
+                return "Topic"
+            if section == 1:
+                return "Payload"
+        return None
 
     def flags(self, index: QtCore.QModelIndex) -> Qt.ItemFlags:
         if not index.isValid():
