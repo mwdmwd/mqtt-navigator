@@ -229,7 +229,10 @@ class MqTreeModel(QtCore.QAbstractItemModel):
         if orientation == QtCore.Qt.Horizontal:
             return ""
 
-    def flags(self, _index: QtCore.QModelIndex) -> Qt.ItemFlags:
+    def flags(self, index: QtCore.QModelIndex) -> Qt.ItemFlags:
+        if not index.isValid():
+            return Qt.ItemFlag.NoItemFlags
+
         return Qt.ItemFlag.ItemIsEnabled | Qt.ItemIsSelectable
 
     def index(self, row, column, parent=QtCore.QModelIndex()):
