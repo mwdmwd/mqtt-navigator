@@ -42,6 +42,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._ui.chart_view = ResettableZoomChartView()
         self._ui.chart_view.setRubberBand(QtCharts.QChartView.RubberBand.RectangleRubberBand)
+        self._ui.chart_view.setRenderHint(QtGui.QPainter.Antialiasing)
         self._chart = self._ui.chart_view.chart()
 
         self._chart.legend().hide()
