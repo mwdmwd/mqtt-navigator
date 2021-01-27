@@ -45,6 +45,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._ui.chart_layout.addWidget(self._ui.chart_view)
 
+        if not self._raw_model.has_mqtt():
+            self._ui.button_send_to_editor.hide()
+            self._ui.tx_widget.hide()
+
     def _try_parse_and_display_json(self, payload):
         try:
             json_data = json.loads(payload)

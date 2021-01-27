@@ -204,6 +204,9 @@ class MqTreeModel(QtCore.QAbstractItemModel):
 
         return self.createIndex(parentItem.row(), 0, parentItem)
 
+    def has_mqtt(self):
+        return self._mqtt is not None
+
     def mqtt_publish(self, topic, payload=None, qos=0, retain=False, properties=None):
         return self._mqtt.publish(
             topic, payload=payload, qos=qos, retain=retain, properties=properties
