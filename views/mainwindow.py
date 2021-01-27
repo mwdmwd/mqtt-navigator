@@ -148,6 +148,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _publish_clicked(self):
         topic = self._ui.text_topic.text()
+        if not topic:
+            QtWidgets.QMessageBox.warning(self, "Empty topic", "Can't send message to empty topic")
+            return
+
         payload = self._ui.text_payload.toPlainText()
         qos = self._ui.num_qos.value()
         retain = self._ui.checkbox_retain.isChecked()
