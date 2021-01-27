@@ -126,7 +126,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _tree_selection_changed(self, selected: QtCore.QItemSelectionModel, _deselected):
         selected = self._model.mapSelectionToSource(selected)
-        model: MqTreeNode = selected.indexes()[0].internalPointer()
+        indexes = selected.indexes()
+        if not indexes:
+            return
+
+        model: MqTreeNode = indexes[0].internalPointer()
         self._selected_topic_model = model
         self._selected_node_updated(selection_changed=True)
 
