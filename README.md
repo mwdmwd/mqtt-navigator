@@ -10,3 +10,6 @@ make
 ```
 
 If no errors occurred, you can then run `main.py` and use the program.
+
+# Screenshot
+![screenshot](https://user-images.githubusercontent.com/66176893/114687293-e7925b00-9d13-11eb-9f48-f22043a893c3.png)
