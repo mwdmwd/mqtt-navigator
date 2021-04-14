@@ -1,11 +1,6 @@
-/*.odp
-/*.docx
 /sessions
-/*.png
-/notes
 
 .vscode
 __pycache__
 
 ui/*.py
-ui/old
