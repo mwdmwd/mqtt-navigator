@@ -1,7 +1,7 @@
 import json
 from typing import Optional
 
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 
 from common import consts
 from models.mqtreemodel import MqTreeModel

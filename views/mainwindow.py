@@ -2,8 +2,8 @@ import json
 import time
 from typing import Optional
 
-from PySide2 import QtWidgets, QtCore, QtGui
-from PySide2.QtCharts import QtCharts
+from PySide6 import QtWidgets, QtCore, QtGui
+from PySide6 import QtCharts
 
 from common import consts
 from models.mqtreemodel import MqTreeNode, MqTreeModel

@@ -1,8 +1,8 @@
 from typing import List
 import math
 
-from PySide2 import QtGui, QtCore
-from PySide2.QtCharts import QtCharts
+from PySide6 import QtGui, QtCore
+from PySide6 import QtCharts
 
 
 class ResettableZoomChartView(QtCharts.QChartView):
