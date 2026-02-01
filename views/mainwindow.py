@@ -32,6 +32,15 @@ class MainWindow(QtWidgets.QMainWindow):
     def _setup_ui(self):
         self._ui.tree_view.setModel(self._model)
         self._ui.tree_view.selectionModel().selectionChanged.connect(self._tree_selection_changed)
+        self._ui.tree_view.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self._ui.tree_view.customContextMenuRequested.connect(self._show_context_menu)
+
+        self._action_delete = QtGui.QAction("Delete", self)
+        self._action_delete.setShortcut(QtGui.QKeySequence.Delete)
+        self._action_delete.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
+        self._action_delete.triggered.connect(self._delete_retained_messages)
+        self._ui.tree_view.addAction(self._action_delete)
+
         self._ui.button_send_to_editor.clicked.connect(self._send_to_editor_clicked)
         self._ui.button_publish.clicked.connect(self._publish_clicked)
         self._ui.text_tree_search.textChanged.connect(self._search_text_changed)
@@ -48,6 +57,50 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self._raw_model.has_mqtt():
             self._ui.button_send_to_editor.hide()
             self._ui.tx_widget.hide()
+
+    def _show_context_menu(self, position):
+        menu = QtWidgets.QMenu()
+        menu.addAction(self._action_delete)
+        menu.exec(self._ui.tree_view.viewport().mapToGlobal(position))
+
+    def _collect_topics(self, node: MqTreeNode) -> list[str]:
+        topics = [node.full_topic()]
+        for i in range(node.child_count()):
+            child = node.child(i)
+            if child:
+                topics.extend(self._collect_topics(child))
+        return topics
+
+    def _delete_retained_messages(self):
+        if not self._selected_topic_model:
+            return
+
+        topics = self._collect_topics(self._selected_topic_model)
+        topics = [t for t in topics if t]
+
+        if not topics:
+            return
+
+        count = len(topics)
+        msg = f"Are you sure you want to delete retained messages for {count} topic(s)?\n\n"
+        msg += f"Root: {topics[0]}\n"
+        if count > 1:
+            msg += "  and all sub-topics\n"
+        if count > 50:
+            msg += "First 50 topics:\n"
+        for topic in topics[:50]:
+            msg += f"- {topic}\n"
+
+        reply = QtWidgets.QMessageBox.question(
+            self,
+            "Delete retained messages",
+            msg,
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+        )
+
+        if reply == QtWidgets.QMessageBox.Yes:
+            for topic in topics:
+                self._raw_model.mqtt_publish(topic, payload=b"", qos=0, retain=True)
 
     def _try_parse_and_display_json(self, payload):
         try:
