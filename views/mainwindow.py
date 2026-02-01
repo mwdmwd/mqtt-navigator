@@ -64,7 +64,9 @@ class MainWindow(QtWidgets.QMainWindow):
         menu.exec(self._ui.tree_view.viewport().mapToGlobal(position))
 
     def _collect_topics(self, node: MqTreeNode) -> list[str]:
-        topics = [node.full_topic()]
+        topics = []
+        if node.payload:
+            topics.append(node.full_topic())
         for i in range(node.child_count()):
             child = node.child(i)
             if child:
@@ -83,7 +85,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         count = len(topics)
         msg = f"Are you sure you want to delete retained messages for {count} topic(s)?\n\n"
-        msg += f"Root: {topics[0]}\n"
+        msg += f"Root: {self._selected_topic_model.full_topic()}\n"
         if count > 1:
             msg += "  and all sub-topics\n"
         if count > 50:
