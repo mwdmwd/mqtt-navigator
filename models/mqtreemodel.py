@@ -191,21 +191,12 @@ class MqTreeModel(QtCore.QAbstractItemModel):
         # Return an invalid index
         return QtCore.QModelIndex()
 
-    def index_for_model(self, model: MqTreeNode) -> Optional[QtCore.QModelIndex]:
+    def index_for_model(self, model: MqTreeNode) -> QtCore.QModelIndex:
         if not model.parent():
             return QtCore.QModelIndex()
 
-        hits = self.match(
-            self.index(0, 0),
-            consts.FULL_TOPIC_ROLE,
-            model.full_topic(),
-            hits=1,
-            flags=Qt.MatchRecursive | Qt.MatchExactly | Qt.MatchFixedString,
-        )
-
-        if not hits:
-            return None
-        return hits[0]
+        parent_index = self.index_for_model(model.parent())
+        return self.index(model.row(), 0, parent_index)
 
     def data(self, index, role):
         if not index.isValid():
