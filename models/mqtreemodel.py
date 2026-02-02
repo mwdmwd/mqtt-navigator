@@ -131,7 +131,7 @@ class MqTreeModel(QtCore.QAbstractItemModel):
         parent=None,
         *,
         mqtt_listener: Optional[MqttListener] = None,
-        saved_state: Optional[dict] = None
+        saved_state: Optional[dict] = None,
     ):
         super().__init__(parent)
 

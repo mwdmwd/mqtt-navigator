@@ -14,7 +14,15 @@ class StartupWindow(QtWidgets.QMainWindow):
     connected = QtCore.Signal()
     connection_failed = QtCore.Signal()
 
-    def __init__(self, parent=None):
+    def __init__(
+        self,
+        parent=None,
+        host: Optional[str] = None,
+        port: int = 1883,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        load_session: Optional[str] = None,
+    ):
         super().__init__(parent)
 
         self.connected.connect(self._connected)
@@ -25,10 +33,25 @@ class StartupWindow(QtWidgets.QMainWindow):
         self._saved_state = {}
 
         self._ui = Ui_StartupWindow()
-        self._ui.setupUi(self)
         self._setup_ui()
 
+        if load_session:
+            self._load_session(load_session)
+
+        if host:
+            self._ui.text_host.setText(host)
+            self._ui.num_port.setValue(port)
+            if username:
+                self._ui.group_useauthn.setChecked(True)
+                self._ui.text_username.setText(username)
+                self._ui.text_password.setText(password or "")
+
+        if self._ui.text_host.text():
+            # Session or argument might have filled it
+            self._connect_clicked()
+
     def _setup_ui(self):
+        self._ui.setupUi(self)
         self._ui.button_connect.clicked.connect(self._connect_clicked)
         self._ui.button_browse_session.clicked.connect(self._load_session)
 
@@ -79,10 +102,11 @@ class StartupWindow(QtWidgets.QMainWindow):
             self._mainwindow_model = MqTreeModel(self, saved_state=state)
             self._connected()  # Call _connected directly to proceed to the main window
 
-    def _load_session_file(self) -> Optional[dict]:
-        filepath, _filetype = QtWidgets.QFileDialog.getOpenFileName(
-            self, "Open session", "", consts.SESSION_FILE_TYPES
-        )
+    def _load_session_file(self, filepath: Optional[str] = None) -> Optional[dict]:
+        if not filepath:
+            filepath, _filetype = QtWidgets.QFileDialog.getOpenFileName(
+                self, "Open session", "", consts.SESSION_FILE_TYPES
+            )
 
         if not filepath:
             return
@@ -106,8 +130,8 @@ class StartupWindow(QtWidgets.QMainWindow):
 
         return entries
 
-    def _load_session(self):
-        session = self._load_session_file()
+    def _load_session(self, filepath: Optional[str] = None):
+        session = self._load_session_file(filepath)
         if not session:
             return
 
