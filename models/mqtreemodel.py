@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Optional
+from typing import Dict, List, Optional
 import collections
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -21,6 +21,7 @@ class MqTreeNode:
 
     _parent: Optional[MqTreeNode] = field(default=None, repr=False)
     _children: List[MqTreeNode] = field(default_factory=list)
+    _children_map: Dict[str, MqTreeNode] = field(default_factory=dict, repr=False)
 
     def full_topic(self):
         node = self
@@ -47,6 +48,7 @@ class MqTreeNode:
     def append_child(self, child: MqTreeNode):
         child._parent = self
         self._children.append(child)
+        self._children_map[child.topic_fragment] = child
         return child
 
     def data(self, column: int):
@@ -73,10 +75,7 @@ class MqTreeNode:
         return 0
 
     def find_child(self, topic_frag: str):
-        for child in self._children:
-            if child.topic_fragment == topic_frag:
-                return child
-        return None
+        return self._children_map.get(topic_frag)
 
     def asdict(self):
         return {
@@ -106,6 +105,7 @@ class MqTreeNode:
         node._children = [
             MqTreeNode.parse(child) for child in node_dict[consts.SESSION_CHILDREN_KEY]
         ]
+        node._children_map = {child.topic_fragment: child for child in node._children}
 
         # Reconnect children
         for child in node._children:
