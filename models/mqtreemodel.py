@@ -30,8 +30,14 @@ class MqTreeNode:
             node = node.parent()
         return "/".join(frags[:-1][::-1])  # Skip root
 
-    def child_count(self) -> int:
-        return len(self._children)
+    def child_count(self, leaves=False) -> int:
+        return sum(1 for c in self._children if c.payload) if leaves else len(self._children)
+
+    def recursive_child_count(self, leaves=False) -> int:
+        return self.child_count(leaves) + sum(c.recursive_child_count(leaves) for c in self._children)
+
+    def recursive_message_count(self) -> int:
+        return len(self.payload_history) + sum(c.recursive_message_count() for c in self._children)
 
     def child(self, row: int) -> Optional[MqTreeNode]:
         if row >= 0 and row < self.child_count():
@@ -48,6 +54,14 @@ class MqTreeNode:
             return self.topic_fragment
         elif column == 1:
             return self.payload
+        elif column == 2:
+            recursive = self.recursive_child_count(leaves=True)
+            direct = self.child_count(leaves=True)
+            return self._format_recursive_direct(recursive, direct)
+        elif column == 3:
+            recursive = self.recursive_message_count()
+            direct = len(self.payload_history)
+            return self._format_recursive_direct(recursive, direct)
 
     def parent(self):
         return self._parent
@@ -99,6 +113,14 @@ class MqTreeNode:
 
         return node
 
+    @staticmethod
+    def _format_recursive_direct(recursive: int, direct: int) -> Optional[str]:
+        if recursive > 0:
+            if direct > 0 and recursive > 1 and recursive != direct:
+                return f"{recursive} ({direct})"
+            return f"{recursive}"
+        return None
+
 
 class MqTreeModel(QtCore.QAbstractItemModel):
     # Emitted whenever a message is received on a node through an active MQTT listener
@@ -125,7 +147,7 @@ class MqTreeModel(QtCore.QAbstractItemModel):
             self._mqtt.add_message_listener(self.on_message)
 
     def columnCount(self, _parent=QtCore.QModelIndex()):
-        return 2
+        return 4
 
     def rowCount(self, parent=QtCore.QModelIndex()):
         if parent.column() > 0:
@@ -141,6 +163,10 @@ class MqTreeModel(QtCore.QAbstractItemModel):
                 return "Topic"
             if section == 1:
                 return "Payload"
+            if section == 2:
+                return "Subtopics"
+            if section == 3:
+                return "Messages"
         return None
 
     def flags(self, index: QtCore.QModelIndex) -> Qt.ItemFlags:
@@ -150,7 +176,7 @@ class MqTreeModel(QtCore.QAbstractItemModel):
         return Qt.ItemFlag.ItemIsEnabled | Qt.ItemIsSelectable
 
     def index(self, row, column, parent=QtCore.QModelIndex()):
-        if column > 1:
+        if column > 3:
             return QtCore.QModelIndex()
 
         if not parent.isValid():
@@ -250,8 +276,16 @@ class MqTreeModel(QtCore.QAbstractItemModel):
         if remain:
             self.layoutChanged.emit()  # Again, could be more specific
         else:
-            index = self.index_for_model(node).siblingAtColumn(1)
-            self.dataChanged.emit(index, index)
+            base_index = self.index_for_model(node)
+            self.dataChanged.emit(base_index.siblingAtColumn(1), base_index.siblingAtColumn(3))
+
+            # Update column 3 (messages) for ancestors
+            parent = node.parent()
+            while parent:
+                p_idx = self.index_for_model(parent)
+                if p_idx.isValid():
+                    self.dataChanged.emit(p_idx.siblingAtColumn(3), p_idx.siblingAtColumn(3))
+                parent = parent.parent()
 
         self.messageReceived.emit(node)  # Emit the signal with the updated node
 
